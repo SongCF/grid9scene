@@ -20,10 +20,11 @@ func tcpServer() {
 			log.Warning("accept failed:", err)
 			continue
 		}
+
 		// set socket read buffer
-		//conn.SetReadBuffer(sockbuf)
+		conn.SetReadBuffer(256)   //TODO config
 		// set socket write buffer
-		//conn.SetWriteBuffer(sockbuf)
+		conn.SetWriteBuffer(2048) //TODO config
 		// start a goroutine for every incoming connection for reading
 		go handleClient(conn)
 	}
