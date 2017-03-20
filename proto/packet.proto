@@ -1,0 +1,9 @@
+package Platform.Scene.Proto;
+syntax = "proto2";
+
+message packet {
+  required int32 cmd = 1;
+  required int32 vsn = 2;
+  required bytes payload = 3;
+  optional bytes service = 4;
+}

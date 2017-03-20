@@ -1,0 +1,164 @@
+// 只有后缀为_req|_ack|_ntf的才需要cmd编号，其他都是内部数据结构。
+// _req -> 客户端发送给服务的请求
+// _ack -> 服务器回复给客户端
+// _ntf -> 服务器主动推送给客户端.
+
+package Platform.Scene.Proto;
+syntax = "proto2";
+
+/**************************************************************/
+
+// 玩家
+message user_data {
+    required int32 user_id = 1;
+    required float pos_x = 2;
+    required float pos_y = 3;
+    required float angle = 4;
+    optional bytes ex_data = 5;
+}
+
+
+
+
+/**************************************************************/
+
+// 通用错误
+// cmd:10012
+message error_ntf {
+    required int32 code = 1;
+    required bytes msg = 2;
+    required int32 req = 3;
+}
+
+
+
+
+
+// 用于登录服务器 验证
+// cmd:10020
+message login_req {
+    required bytes app_id = 1;
+    required int32 user_id = 2;
+    required bytes user_token = 4;
+}
+// 用于登录服务器 验证 返回
+// cmd:10021
+message login_ack {
+}
+
+// 推送下线消息
+// cmd:10032
+message offline_ntf {
+	required int32 type = 1;
+}
+
+
+// 加入场景请求
+// cmd:20010
+message join_req {
+    required bytes space_id = 1;
+    optional float pos_x = 2;
+    optional float pos_y = 3;
+    optional float angle = 4;
+    required bool use_last = 5;
+    required bytes ex_data = 6;
+}
+// 加入场景返回
+// cmd:20011
+message join_ack {
+}
+// 加入场景推送
+// cmd:20012
+message join_ntf {
+    required user_data user = 1;
+}
+// 推送其它格子的玩家列表
+// cmd:20013
+message user_list_ntf {
+    repeated user_data user_list = 1;
+}
+
+
+// 离开场景请求
+// cmd:20020
+message leave_req {
+    optional bytes space_id = 1;
+}
+// 离开场景返回
+// cmd:20021
+message leave_ack {
+}
+// 离开场景推送
+// cmd:20022
+message leave_ntf {
+    required int32 user_id = 1;
+}
+
+
+// 场景移动请求
+// cmd:20030
+message move_req {
+    required float pos_x = 1;
+    required float pos_y = 2;
+    required float angle = 3;
+    required int32 time = 4;
+}
+// 场景移动返回
+// cmd:20031
+message move_ack {
+    required float pos_x = 1;
+    required float pos_y = 2;
+    required float angle = 3;
+}
+// 场景移动推送
+// cmd:20032
+message move_ntf {
+    required int32 user_id = 1;
+    required float pos_x = 2;
+    required float pos_y = 3;
+    required float angle = 4;
+}
+
+
+// 场景广播请求
+// cmd:20040
+message broadcast_req {
+    required bytes data = 1;
+}
+// 场景广播返回
+// cmd:20041
+message broadcast_ack {
+}
+// 场景广播推送
+// cmd:20042
+message broadcast_ntf {
+    required int32 user_id = 1;
+    required bytes data = 2;
+}
+
+
+// 查询位置请求
+// cmd:20050
+message query_pos_req {
+    required int32 user_id = 1;
+}
+// 查询位置返回
+// cmd:20051
+message query_pos_ack {
+    required bytes space_id = 1;
+    required float pos_x = 2;
+    required float pos_y = 3;
+    required float angle = 4;
+}
+
+
+// 系统预留，用于表示心跳
+// cmd:20061
+message heartbeat_req {
+}
+// cmd:20062
+message heartbeat_ack {
+}
+
+
+
