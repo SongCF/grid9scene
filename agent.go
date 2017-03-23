@@ -6,101 +6,147 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"io"
 	"encoding/binary"
+	. "jhqc.com/songcf/scene/types"
 )
-
-type Session struct {
-	ip           net.IP
-	conn         net.Conn
-
-	appId        string
-	uid          int32
-
-	in           chan []byte
-	out          chan []byte
-	ntf          chan []byte
-	die          chan struct{} //会话关闭信号
-
-	readBuf      []byte
-	writeBuf     []byte
-
-	packetCount int32         //对包进行计数
-	connectTime time.Time
-}
-
-func (s* Session) init(conn net.Conn) bool {
-	host, port, err := net.SplitHostPort(conn.RemoteAddr().String())
-	if err != nil {
-		log.Error("init session error:", err)
-		return false
-	}
-	log.Infof("new connection from: %v port:%v", host, port)
-
-	s.ip = net.ParseIP(host)
-	s.conn = conn
-
-	s.die = make(chan struct{})
-	s.in = make(chan []byte)
-	s.out = make(chan []byte)
-	s.ntf = make(chan []byte)
-
-	s.readBuf = make([]byte, 256)  //TODO config
-	s.writeBuf = make([]byte, 2048) //TODO config
-
-	s.packetCount = 0
-	s.connectTime = time.Now()
-
-	return true
-}
 
 
 
 func handleClient(conn net.Conn) {
-	// init session
-	var s Session
-	ok := s.init(conn)
-	if !ok {
-		log.Error("init seesion error.")
+	defer func() {
+		log.Debug("---session reader end.")
+	}()
+
+	host, port, err := net.SplitHostPort(conn.RemoteAddr().String())
+	if err != nil {
+		log.Error("init session error:", err)
 		return
 	}
-	defer close(s.in) //客户端conn关闭时，read header失败，session退出，在这里关闭 s.in来触发agent结束
+	log.Infof("new connection from: %v port:%v", host, port)
 
-	go agent(&s)
+	// init session
+	var s Session
+	s.IP = net.ParseIP(host)
+	s.Conn = conn
+	s.PacketCount = 0
+	s.ConnectTime = time.Now()
+	s.ChanOut = make(chan []byte)
+
+
+	in := make(chan []byte)
+	defer close(in)
+
+	go agent(&s, in)
+
+	globalWG.Add(1)
 	go sender(&s)
 
 	//reader
-	header := make([]byte, 4)
+	readBuf := make([]byte, 256)   // TODO config size
 	for {
-		// solve dead link problem:
-		// physical disconnection without any communication between client and server
-		// will cause the read to block FOREVER, so a timeout is a rescue.
 		readDeadline := 120 * time.Second  //TODO config
 		conn.SetReadDeadline(time.Now().Add(readDeadline))
 
-		n, err := io.ReadFull(conn, header)
+		n, err := io.ReadAtLeast(conn, readBuf, 4)
 		if err != nil {
 			log.Error("read header error:", err)
 			return
 		}
-		size := binary.BigEndian.Uint32(n)
+		size := binary.BigEndian.Uint32(readBuf[:4])
 
 		// read data
-		n, err = io.ReadAtLeast(conn, s.readBuf, size)
+		n, err = io.ReadAtLeast(conn, readBuf, int(size))
 		if err != nil {
-			log.Errorf("read payload failed, ip:%v reason:%v size:%v\n", s.ip, err, n)
+			log.Errorf("read payload failed, ip:%v reason:%v size:%v\n", s.IP, err, n)
 			return
 		}
 
 		select {
-		case s.in <- s.readBuf:
-		//case <- global_die:
+		case in <- readBuf[:size]:
+		case <- globalDie:
+			return
 		}
 	}
 }
 
-func agent(s *Session) {
+func agent(s *Session, in chan []byte) {
+	defer func() {
+		log.Debug("---session agent end.")
+	}()
 
+	minTimer := time.After(time.Minute)
+	for {
+		select {
+		case msg, ok := <- in:
+			if !ok {
+				return
+			}
+			s.PacketCount++
+			log.Infof("req msg:%v, packCount:%v", msg, s.PacketCount)
+			msgHandler(s.AppId, s.Uid, msg)
+		case <- minTimer:
+			timeWork()
+			minTimer = time.After(time.Minute)
+		case <- globalDie:
+			return
+		}
+	}
 }
 
 func sender(s *Session) {
+	defer func() {
+		log.Debug("---session sender end.")
+	}()
+	defer globalWG.Done()
 
+	writeBuf := make([]byte, 2048)
+	for {
+		select {
+		case data, ok := <- s.ChanOut:
+			if !ok {
+				return
+			}
+			sendData(s.Conn, data, writeBuf)
+		case <- globalDie:
+			s.Conn.Close()
+			//Don't close s.out, 如果grid server后退出，可能还会往里面写数据
+			return
+		}
+	}
+}
+
+
+
+
+
+func timeWork() {
+	//TODO something
+	log.Info("on minute timer")
+}
+
+func sendData(conn net.Conn, data []byte, cache []byte) bool {
+	log.Info("... send data ...")
+	size := len(data)
+	binary.BigEndian.PutUint32(cache, uint32(size))
+	copy(cache[4:], data)  //TODO 4, config
+
+	n, err := conn.Write(cache[:size+4])
+	if err != nil {
+		log.Errorf("... send data error, bytes:%v, reason:%v", n, err)
+		return false
+	}
+	log.Info("... send data ok!")
+	return true
+}
+
+
+func msgHandler(appId string, uid int32, m []byte) {
+	cmd := 1
+	switch cmd {
+	case 1:
+
+	case 2:
+		//s := AppList[appId].sessionList[uid]
+		//msg2Grid(s.appId, s.spaceId, s.gridId, m)
+	default:
+	}
 }

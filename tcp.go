@@ -27,5 +27,13 @@ func tcpServer() {
 		conn.SetWriteBuffer(2048) //TODO config
 		// start a goroutine for every incoming connection for reading
 		go handleClient(conn)
+
+		// check server close signal
+		select {
+		case <- globalDie:
+			listener.Close()
+			return
+		default:
+		}
 	}
 }

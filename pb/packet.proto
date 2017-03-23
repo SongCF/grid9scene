@@ -1,5 +1,6 @@
-package Platform.Scene.Proto;
 syntax = "proto2";
+
+package pb;
 
 message packet {
   required int32 cmd = 1;

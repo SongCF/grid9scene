@@ -1,10 +1,12 @@
+syntax = "proto2";
+
 // 只有后缀为_req|_ack|_ntf的才需要cmd编号，其他都是内部数据结构。
 // _req -> 客户端发送给服务的请求
 // _ack -> 服务器回复给客户端
 // _ntf -> 服务器主动推送给客户端.
 
-package Platform.Scene.Proto;
-syntax = "proto2";
+package pb;
+
 
 /**************************************************************/
 
@@ -156,6 +158,7 @@ message query_pos_ack {
 // cmd:20061
 message heartbeat_req {
 }
+// 心跳回复包
 // cmd:20062
 message heartbeat_ack {
 }

@@ -17,6 +17,8 @@ func main() {
 
 	go tcpServer()
 
+	initZK()
+
 	select {}
 }
 
@@ -26,4 +28,8 @@ func checkError(err error) {
 		log.Fatal(err)
 		os.Exit(-1)
 	}
+}
+
+func initZK() {
+	// TODO zookeeper
 }
