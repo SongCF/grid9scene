@@ -1,12 +1,13 @@
-package main
+package gateway
 
 import (
 	"net/http"
 	"github.com/gorilla/mux"
 	log "github.com/Sirupsen/logrus"
+	. "jhqc.com/songcf/scene/model"
 )
 
-func httpServer() {
+func HttpServer() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/app/{aid}", handleCreateApp).Methods("POST")
 	r.HandleFunc("/api/v1/app/{aid}", handleDeleteApp).Methods("DELETE")
@@ -19,23 +20,23 @@ func httpServer() {
 
 
 func handleCreateApp(w http.ResponseWriter, r *http.Request) {
-	createApp("1", "1", "1")
+	CreateApp("1", "1", "1")
 	log.Info("test!")
 	w.Write([]byte("createApp\n"))
 }
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
-	deleteApp("1")
+	DeleteApp("1")
 	w.Write([]byte("deleteApp\n"))
 }
 
 func handleCreateSpace(w http.ResponseWriter, r *http.Request) {
-	createSpace("1", "1", 1, 1)
+	CreateSpace("1", "1", 1, 1)
 	w.Write([]byte("createSpace\n"))
 }
 
 func handleDeleteSpace(w http.ResponseWriter, r *http.Request) {
-	deleteSpace("1", "1")
+	DeleteSpace("1", "1")
 	w.Write([]byte("deleteSpace\n"))
 }
 

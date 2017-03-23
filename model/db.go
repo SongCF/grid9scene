@@ -1,4 +1,4 @@
-package main
+package model
 
 import (
 	log "github.com/Sirupsen/logrus"
@@ -9,7 +9,7 @@ import (
 var db *sql.DB
 
 
-func initDB() {
+func InitDB() {
 	log.Info("init db")
 	mysql, err := sql.Open("mysql", "root:123456@tcp(192.168.31.216:3306)/scene_db?charset=utf8")
 	if err != nil {

@@ -1,16 +1,18 @@
-package main
+package gateway
 
 import (
 	"net"
 	log "github.com/Sirupsen/logrus"
+	. "jhqc.com/songcf/scene/global"
+	"jhqc.com/songcf/scene/util"
 )
 
-func tcpServer() {
+func TcpServer() {
 	addr, err := net.ResolveTCPAddr("tcp4", ":9901")
-	checkError(err)
+	util.CheckError(err)
 
 	listener, err := net.ListenTCP("tcp", addr)
-	checkError(err)
+	util.CheckError(err)
 	log.Info("listening on:", listener.Addr())
 
 	// loop accepting
@@ -30,7 +32,7 @@ func tcpServer() {
 
 		// check server close signal
 		select {
-		case <- globalDie:
+		case <- GlobalDie:
 			listener.Close()
 			return
 		default:

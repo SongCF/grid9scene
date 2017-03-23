@@ -2,20 +2,23 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"os"
+	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/gateway"
+	. "jhqc.com/songcf/scene/model"
 )
+
 
 
 func main() {
 	log.SetLevel(log.DebugLevel)
 
-	go signalHandler()
+	go HandleSignal()
 
-	initDB()
+	InitDB()
 
-	go httpServer()
+	go HttpServer()
 
-	go tcpServer()
+	go TcpServer()
 
 	initZK()
 
@@ -23,12 +26,6 @@ func main() {
 }
 
 
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(-1)
-	}
-}
 
 func initZK() {
 	// TODO zookeeper
