@@ -6,6 +6,10 @@
 
 package pb
 
+import (
+	. "jhqc.com/songcf/scene/gateway"
+)
+
 var Code = map[string]int{
 	"error_ntf":     10012, // 通用错误
 	"login_req":     10020, // 用于登录服务器 验证
@@ -53,3 +57,40 @@ var RCode = map[int]string{
 	20061: "heartbeat_req", // 系统预留，用于表示心跳
 	20062: "heartbeat_ack", // 心跳回复包
 }
+
+const (
+	CmdErrorNtf     = 10012 // 通用错误
+	CmdLoginReq     = 10020 // 用于登录服务器 验证
+	CmdLoginAck     = 10021 // 用于登录服务器 验证 返回
+	CmdOfflineNtf   = 10032 // 推送下线消息
+	CmdJoinReq      = 20010 // 加入场景请求
+	CmdJoinAck      = 20011 // 加入场景返回
+	CmdJoinNtf      = 20012 // 加入场景推送
+	CmdUserListNtf  = 20013 // 推送其它格子的玩家列表
+	CmdLeaveReq     = 20020 // 离开场景请求
+	CmdLeaveAck     = 20021 // 离开场景返回
+	CmdLeaveNtf     = 20022 // 离开场景推送
+	CmdMoveReq      = 20030 // 场景移动请求
+	CmdMoveAck      = 20031 // 场景移动返回
+	CmdMoveNtf      = 20032 // 场景移动推送
+	CmdBroadcastReq = 20040 // 场景广播请求
+	CmdBroadcastAck = 20041 // 场景广播返回
+	CmdBroadcastNtf = 20042 // 场景广播推送
+	CmdQueryPosReq  = 20050 // 查询位置请求
+	CmdQueryPosAck  = 20051 // 查询位置返回
+	CmdHeartbeatReq = 20061 // 系统预留，用于表示心跳
+	CmdHeartbeatAck = 20062 // 心跳回复包
+)
+
+
+//define this func by yourself
+var Handlers = map[int]func(*Session, []byte) (int, []byte) {
+	10020:   LoginReq,                // 用于登录服务器 验证
+	20010:   JoinReq,                 // 加入场景请求
+	20020:   LeaveReq,                // 离开场景请求
+	20030:   MoveReq,                 // 场景移动请求
+	20040:   BroadcastReq,            // 场景广播请求
+	20050:   QueryPosReq,             // 查询位置请求
+	20061:   HeartbeatReq,            // 系统预留，用于表示心跳
+}
+

@@ -4,6 +4,8 @@ import (
 	"time"
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
+	"jhqc.com/songcf/scene/pb"
+	"github.com/golang/protobuf/proto"
 )
 
 
@@ -21,7 +23,8 @@ func agent(s *Session, in chan []byte) {
 			}
 			s.PacketCount++
 			log.Infof("req msg:%v, packCount:%v", msg, s.PacketCount)
-			msgHandler(s.AppId, s.Uid, msg)
+			req, err := handleMsg(s, msg)
+			s.ErrorNtf(req, err)
 		case <- minTimer:
 			timeWork()
 			minTimer = time.After(time.Minute)
@@ -33,14 +36,16 @@ func agent(s *Session, in chan []byte) {
 
 
 
-func msgHandler(appId string, uid int32, m []byte) {
-	cmd := 1
-	switch cmd {
-	case 1:
+func handleMsg(s *Session, m []byte) (int, *pb.ErrInfo) {
+	packet := &pb.Packet{}
+	err := proto.Unmarshal(m, packet)
+	if err != nil {
+		return 0, pb.ErrMsgFormat
+	}
 
-	case 2:
-		//s := AppList[appId].sessionList[uid]
-		//msg2Grid(s.appId, s.spaceId, s.gridId, m)
-	default:
+	if fn, ok := pb.Handlers[packet.GetCmd()]; !ok {
+		return packet.GetCmd(), pb.ErrCmdNotSupport
+	} else {
+		return fn(s, packet.GetPayload())
 	}
 }

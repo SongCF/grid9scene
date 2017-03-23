@@ -23,7 +23,7 @@ func sender(s *Session) {
 			sendData(s.Conn, data, writeBuf)
 		case <- GlobalDie:
 			s.Conn.Close()
-		//Don't close s.out, 如果grid server后退出，可能还会往里面写数据
+			//Don't close s.out, 如果grid server后退出，可能还会往里面写数据
 			return
 		}
 	}

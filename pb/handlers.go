@@ -1,45 +1,34 @@
 package pb
 
 import (
-	. "jhqc.com/songcf/scene/types"
+	. "jhqc.com/songcf/scene/gateway"
 )
 
 
-var Handlers = map[int]func(*Session, []byte){
-	10020: Login, //"login_req",     // 用于登录服务器 验证
-	20010: Join, //"join_req",      // 加入场景请求
-	20020: Leave, //"leave_req",     // 离开场景请求
-	20030: Move, //"move_req",      // 场景移动请求
-	20040: Broadcast, //"broadcast_req", // 场景广播请求
-	20050: QueryPos, //"query_pos_req", // 查询位置请求
-	20061: Heartbeat, //"heartbeat_req", // 系统预留，用于表示心跳
+func LoginReq(s *Session, msg []byte) (int, []byte) {
+	return nil
 }
 
-
-func Login(s *Session, msg []byte) {
-
+func JoinReq(s *Session, msg []byte) (int, []byte) {
+	return nil
 }
 
-func Join(s *Session, msg []byte) {
-
+func LeaveReq(s *Session, msg []byte) (int, []byte) {
+	return nil
 }
 
-func Leave(s *Session, msg []byte) {
-
+func MoveReq(s *Session, msg []byte) (int, []byte) {
+	return nil
 }
 
-func Move(s *Session, msg []byte) {
-
+func BroadcastReq(s *Session, msg []byte) (int, []byte) {
+	return nil
 }
 
-func Broadcast(s *Session, msg []byte) {
-
+func QueryPosReq(s *Session, msg []byte) (int, []byte) {
+	return nil
 }
 
-func QueryPos(s *Session, msg []byte) {
-
-}
-
-func Heartbeat(s *Session, msg []byte) {
-
+func HeartbeatReq(s *Session, msg []byte) (int, []byte) {
+	return nil
 }
