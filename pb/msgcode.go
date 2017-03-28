@@ -6,7 +6,6 @@
 
 package pb
 
-
 var Code = map[string]int{
 	"error_ntf":     10012, // 通用错误
 	"login_req":     10020, // 用于登录服务器 验证
