@@ -17,7 +17,8 @@ type GridMsg struct {
 
 
 func Msg2Grid(appId, spaceId, gridId string, gridMsg *GridMsg) {
-	if grid, ok := AppInfoL[appId].SpaceM[spaceId].GridM[gridId]; ok {
+	grid := GetGrid(appId, spaceId, gridId)
+	if grid != nil {
 		grid.MsgBox <- gridMsg
 	} else {
 		startGrid(appId, spaceId, gridId, gridMsg)

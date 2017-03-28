@@ -54,30 +54,37 @@ func (s *Session) HasLogin() bool {
 
 
 func SetSession(appId string, uid int32, s *Session) {
-	AppInfoL[appId].SessionM[uid] = s
+	if app, ok := AppInfoL[appId]; ok {
+		app.SessionM[uid] = s
+	} else {
+		log.Errorln("not found app")
+	}
 }
 
 func GetSession(appId string, uid int32) *Session {
-	s, ok := AppInfoL[appId].SessionM[uid]
-	if ok {
-		return s
+	if app, ok := AppInfoL[appId]; ok {
+		if s, ok := app.SessionM[uid]; ok {
+			return s
+		}
 	}
 	return nil
 }
 
 func GetSpace(appId, spaceId string) *Space {
-	s, ok := AppInfoL[appId].SpaceM[spaceId]
-	if ok {
-		return s
+	if app, ok := AppInfoL[appId]; ok {
+		if s, ok := app.SpaceM[spaceId]; ok {
+			return s
+		}
 	}
 	return nil
 }
 
 //get user current space_id, grid x y
 func GetUserData(appId string, uid int32) *UserInfo {
-	s, ok := AppInfoL[appId].SessionM[uid]
-	if ok {
-		return s.UData
+	if app, ok := AppInfoL[appId]; ok {
+		if s, ok := app.SessionM[uid]; ok {
+			return s.UData
+		}
 	}
 	return nil
 }
