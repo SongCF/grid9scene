@@ -4,10 +4,10 @@ package model
 
 
 type Space struct {
-	SpaceId string		     // "spaceId123456"
-	GridWidth int32		     // 9-grid width
-	GridHeight int32	     // 9-grid height
-	GridList map[string]*Grid    // gridId : Grid
+	SpaceId    string           // "spaceId123456"
+	GridWidth  float32            // 9-grid width
+	GridHeight float32            // 9-grid height
+	GridM      map[string]*Grid // gridId : Grid
 }
 
 

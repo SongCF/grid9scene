@@ -4,10 +4,19 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"jhqc.com/songcf/scene/util"
 )
 
-var db *sql.DB
+var DB *sql.DB
 
+
+// mysql table
+const (
+	TBL_APP = "app"
+	TBL_SPACE = "space"
+	TBL_LAST_SPACE = "last_space"
+	TBL_LAST_POS = "last_pos"
+)
 
 func InitDB() {
 	log.Info("init db")
@@ -15,10 +24,11 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
-	db = mysql
-	db.SetMaxOpenConns(2000)
-	db.SetMaxIdleConns(1000)
-	db.Ping()
+	DB = mysql
+	DB.SetMaxOpenConns(2000)
+	DB.SetMaxIdleConns(1000)
+	err = DB.Ping()
+	util.CheckError(err)
 
 	////test
 	//rows, err := db.Query("SELECT * FROM app;")

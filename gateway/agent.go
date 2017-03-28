@@ -4,8 +4,10 @@ import (
 	"time"
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
 	"github.com/golang/protobuf/proto"
+	. "jhqc.com/songcf/scene/controller"
 )
 
 
@@ -23,8 +25,8 @@ func agent(s *Session, in chan []byte) {
 			}
 			s.PacketCount++
 			log.Infof("req msg:%v, packCount:%v", msg, s.PacketCount)
-			req, err := handleMsg(s, msg)
-			s.ErrorNtf(req, err)
+			cmd, payload := handleMsg(s, msg)
+			s.Rsp(cmd, payload)
 		case <- minTimer:
 			timeWork()
 			minTimer = time.After(time.Minute)
@@ -36,16 +38,24 @@ func agent(s *Session, in chan []byte) {
 
 
 
-func handleMsg(s *Session, m []byte) (int, *pb.ErrInfo) {
+func handleMsg(s *Session, m []byte) (int32, proto.Message) {
+	if s == nil {
+		//TODO tick out
+		return pb.Error(0, pb.ErrUser)
+	}
 	packet := &pb.Packet{}
 	err := proto.Unmarshal(m, packet)
 	if err != nil {
-		return 0, pb.ErrMsgFormat
+		return pb.Error(0, pb.ErrMsgFormat)
 	}
-
-	if fn, ok := pb.Handlers[packet.GetCmd()]; !ok {
-		return packet.GetCmd(), pb.ErrCmdNotSupport
-	} else {
+	if fn, ok := Handlers[packet.GetCmd()]; ok {
 		return fn(s, packet.GetPayload())
+	} else {
+		return pb.Error(packet.GetCmd(), pb.ErrCmdNotSupport)
 	}
+}
+
+func timeWork() {
+	//TODO something
+	log.Info("on minute timer")
 }

@@ -6,9 +6,6 @@
 
 package pb
 
-import (
-	. "jhqc.com/songcf/scene/gateway"
-)
 
 var Code = map[string]int{
 	"error_ntf":     10012, // 通用错误
@@ -59,6 +56,7 @@ var RCode = map[int]string{
 }
 
 const (
+	CmdNone         = -1
 	CmdErrorNtf     = 10012 // 通用错误
 	CmdLoginReq     = 10020 // 用于登录服务器 验证
 	CmdLoginAck     = 10021 // 用于登录服务器 验证 返回
@@ -82,15 +80,4 @@ const (
 	CmdHeartbeatAck = 20062 // 心跳回复包
 )
 
-
-//define this func by yourself
-var Handlers = map[int]func(*Session, []byte) (int, []byte) {
-	10020:   LoginReq,                // 用于登录服务器 验证
-	20010:   JoinReq,                 // 加入场景请求
-	20020:   LeaveReq,                // 离开场景请求
-	20030:   MoveReq,                 // 场景移动请求
-	20040:   BroadcastReq,            // 场景广播请求
-	20050:   QueryPosReq,             // 查询位置请求
-	20061:   HeartbeatReq,            // 系统预留，用于表示心跳
-}
 

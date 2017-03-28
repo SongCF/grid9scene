@@ -10,6 +10,11 @@ package pb;
 
 /**************************************************************/
 
+message packet {
+  required int32 cmd = 1;
+  required bytes payload = 2;
+}
+
 // 玩家
 message user_data {
     required int32 user_id = 1;
@@ -58,12 +63,12 @@ message offline_ntf {
 // 加入场景请求
 // cmd:20010
 message join_req {
-    required bytes space_id = 1;
-    optional float pos_x = 2;
-    optional float pos_y = 3;
-    optional float angle = 4;
-    required bool use_last = 5;
-    required bytes ex_data = 6;
+    required bool use_last = 1;
+    required bytes space_id = 2;
+    optional float pos_x = 3;
+    optional float pos_y = 4;
+    optional float angle = 5;
+    optional bytes ex_data = 6;
 }
 // 加入场景返回
 // cmd:20011

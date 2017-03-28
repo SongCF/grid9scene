@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/model"
 	"encoding/binary"
 )
 
@@ -66,8 +67,3 @@ func handleClient(conn net.Conn) {
 	}
 }
 
-
-func timeWork() {
-	//TODO something
-	log.Info("on minute timer")
-}

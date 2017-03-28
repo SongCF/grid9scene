@@ -13,3 +13,7 @@ func CreateApp(appId, name, key string) {
 func DeleteApp(appId string) {
 
 }
+
+func HasApp(appId string) bool {
+	return true
+}

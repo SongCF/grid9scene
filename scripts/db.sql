@@ -23,22 +23,23 @@ CREATE TABLE `space` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- appId + userId -> {spaceId, pos}	玩家最后一次登录的场景
+-- appId + userId -> spaceId 玩家最后一次登录的场景
 CREATE TABLE `last_space` (
   `app_id` VARCHAR(64) NOT NULL COMMENT '应用id',
   `user_id` int(11) unsigned NOT NULL COMMENT '应用玩家id',
   `space_id` VARCHAR(64) NOT NULL COMMENT '最后一次登录的场景id',
-  `pos` VARCHAR(64) NOT NULL COMMENT '最后一次登录的场景id的位置',
   PRIMARY KEY (`app_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- appId + userId + spaceId -> pos	记录玩家在每个场景退出时的位置
+-- appId + userId + spaceId -> x,y,angle	记录玩家在每个场景退出时的位置
 CREATE TABLE `last_pos` (
   `app_id` VARCHAR(64) NOT NULL COMMENT '应用id',
   `user_id` int(11) unsigned NOT NULL COMMENT '应用玩家id',
   `space_id` VARCHAR(64) NOT NULL COMMENT '场景id',
-  `pos` VARCHAR(64) NOT NULL COMMENT '场景id退出时的位置',
+  `x` FLOAT NOT NULL COMMENT '位置x',
+  `y` FLOAT NOT NULL COMMENT '位置y',
+  `angle` FLOAT NOT NULL COMMENT '位置角度',
   PRIMARY KEY (`app_id`,`space_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

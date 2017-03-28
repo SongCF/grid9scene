@@ -5,6 +5,7 @@ import (
 	"net"
 	"encoding/binary"
 	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/model"
 )
 
 func sender(s *Session) {
