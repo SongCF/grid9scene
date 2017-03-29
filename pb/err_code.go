@@ -33,8 +33,8 @@ var (
 	ErrAppNotExist = &ErrInfo{Id:10070201, Desc:"app not exist"}
 	//场景不存在
 	ErrSpaceNotExist = &ErrInfo{Id:10070301, Desc:"space not exist"}
-	//%% 场景已经存在
-	//space_already_exist()-> {10070302, <<"space already exist">>}.
+	//场景已经存在
+	//ErrSpaceAlreadyExist = &ErrInfo{Id:10070302, Desc:"space already exist"}
 	//%% 格子宽高不正确
 	//space_grid_error()-> {10070303, <<"space grid size error">>}.
 	//已加入该场景了

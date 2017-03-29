@@ -1,38 +1,39 @@
 package model
 
-import (
-	log "github.com/Sirupsen/logrus"
-	"jhqc.com/songcf/scene/pb"
-)
 
 
-func CreateApp(appId, name, key string) *pb.ErrInfo {
-	_, err := DB.Exec("INSERT INTO ?(app_id,name,private_key) values(?,?,?);",
-		TBL_APP, appId, name, key)
-	if err != nil {
-		log.Errorf("create app failed, appid=%v", appId)
-		return pb.ErrQueryDBError
-	}
-	AppInfoL[appId] = &AppInfo{}
-	return nil
+type App struct {
+	SpaceM map[string]*Space      // spaceId : Space
+	SessionM map[int32]*Session // uid : Session
+	MsgBox chan *InnerMsg // message box
 }
 
-func DeleteApp(appId string) *pb.ErrInfo {
-	_, err := DB.Exec("DELETE FROM ? WHERE app_id=?;", TBL_APP, appId)
-	if err != nil {
-		log.Errorf("delete app failed, appid=%v", appId)
-		return pb.ErrQueryDBError
+func (app *App) PostMsg(msg *InnerMsg) {
+	if app != nil && app.MsgBox != nil && msg != nil {
+		app.MsgBox <- msg
 	}
-	//TODO stop grid server
 
-	//clean cache
-	delete(AppInfoL, appId)
-	return nil
 }
+
+func (app *App) Close() {
+	if app != nil && app.MsgBox != nil {
+		close(app.MsgBox)
+		app.MsgBox = nil
+	}
+}
+
 
 func HasApp(appId string) bool {
-	if _,ok := AppInfoL[appId]; ok {
+	if _,ok := AppL[appId]; ok {
 		return true
 	}
 	return false
+}
+
+
+func GetApp(appId string) *App {
+	if app, ok := AppL[appId]; ok {
+		return app
+	}
+	return nil
 }

@@ -22,6 +22,8 @@ func sender(s *Session) {
 				return
 			}
 			sendData(s.Conn, data, writeBuf)
+		case <- s.Die:
+			return
 		case <- GlobalDie:
 			s.Conn.Close()
 			//Don't close s.out, 如果grid server后退出，可能还会往里面写数据

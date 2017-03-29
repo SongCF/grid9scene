@@ -9,18 +9,15 @@ import (
 
 
 // mem cache
-type AppInfo struct {
-	SpaceM map[string]*Space      // spaceId : Space
-	SessionM map[int32]*Session // uid : Session
-}
+
 var (
-	AppInfoL = make(map[string]*AppInfo)
+	AppL = make(map[string]*App)
 )
 
 
 
 func GetGrid(appId, spaceId, gridId string) *Grid {
-	if app, ok := AppInfoL[appId]; ok {
+	if app, ok := AppL[appId]; ok {
 		if space, ok := app.SpaceM[spaceId]; ok {
 			if grid, ok := space.GridM[gridId]; ok {
 				return grid
@@ -31,7 +28,7 @@ func GetGrid(appId, spaceId, gridId string) *Grid {
 }
 
 func SetGrid(appId, spaceId, gridId string, g *Grid) {
-	if app, ok := AppInfoL[appId]; ok {
+	if app, ok := AppL[appId]; ok {
 		if space, ok := app.SpaceM[spaceId]; ok {
 			space.GridM[gridId] = g
 		} else {
@@ -43,7 +40,7 @@ func SetGrid(appId, spaceId, gridId string, g *Grid) {
 }
 
 func RmGrid(appId, spaceId, gridId string) {
-	if app, ok := AppInfoL[appId]; ok {
+	if app, ok := AppL[appId]; ok {
 		if space, ok := app.SpaceM[spaceId]; ok {
 			delete(space.GridM, gridId)
 		}

@@ -162,6 +162,20 @@ func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
 				Msg: payload,
 			}
 			Msg2Grid(s.AppId, s.UData.SpaceId, s.UData.GridId, gridMsg)
+			//db: last space pos
+			tx, err := DB.Begin()
+			if err != nil {
+				log.Errorln("save last space and pos failed")
+			} else {
+				tx.Exec("REPLACE INTO ?(app_id,user_id,space_id) VALUES(?,?,?);",
+					TBL_LAST_SPACE, s.AppId, s.Uid, s.UData.SpaceId)
+				tx.Exec("REPLACE INTO ?(app_id,user_id,space_id,x,y,angle) VALUES(?,?,?,?,?,?);",
+					TBL_LAST_POS, s.AppId, s.Uid, s.UData.SpaceId, s.UData.PosX, s.UData.PosY, s.UData.Angle)
+				err = tx.Commit()
+				if err != nil {
+					log.Errorln("delete app failed, db commit failed")
+				}
+			}
 		}
 	}
 	//ignore

@@ -30,6 +30,8 @@ func agent(s *Session, in chan []byte) {
 		case <- minTimer:
 			timeWork()
 			minTimer = time.After(time.Minute)
+		case <- s.Die:
+			return
 		case <- GlobalDie:
 			return
 		}

@@ -12,6 +12,18 @@ type Grid struct {
 	MsgBox chan interface{} // message box
 }
 
+func (g *Grid) PostMsg(m interface{}) {
+	if g != nil && g.MsgBox != nil && m != nil {
+		g.MsgBox <- m
+	}
+}
+func (g *Grid) Close() {
+	if g != nil && g.MsgBox != nil {
+		close(g.MsgBox)
+		g.MsgBox = nil
+	}
+}
+
 
 
 func CalcGridId(posX, posY, w, h float32) string {

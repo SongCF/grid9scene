@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	log "github.com/Sirupsen/logrus"
-	. "jhqc.com/songcf/scene/model"
+	. "jhqc.com/songcf/scene/controller"
 )
 
 func HttpServer() {
@@ -20,26 +20,47 @@ func HttpServer() {
 
 
 func handleCreateApp(w http.ResponseWriter, r *http.Request) {
-	CreateApp("1", "1", "1")
-	log.Info("test!")
-	w.Write([]byte("createApp\n"))
+	appId := "1"
+	err := CreateApp(appId, "1", "1")
+	if err != nil {
+		//TODO
+		w.Write([]byte("createApp failed\n"))
+		return
+	}
+	w.Write([]byte("createApp success\n"))
 }
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
-	DeleteApp("1")
+	err := DeleteApp("1")
+	if err != nil {
+		//TODO
+		w.Write([]byte("deleteApp failed\n"))
+		return
+	}
 	w.Write([]byte("deleteApp\n"))
 }
 
 func handleCreateSpace(w http.ResponseWriter, r *http.Request) {
-	CreateSpace("1", "1", 1, 1)
+	err := CreateSpace("1", "1", 1, 1)
+	if err != nil {
+		//TODO
+		w.Write([]byte("createSpace failed\n"))
+		return
+	}
 	w.Write([]byte("createSpace\n"))
 }
 
 func handleDeleteSpace(w http.ResponseWriter, r *http.Request) {
-	DeleteSpace("1", "1")
+	err := DeleteSpace("1", "1")
+	if err != nil {
+		//TODO
+		w.Write([]byte("deleteSpace failed\n"))
+		return
+	}
 	w.Write([]byte("deleteSpace\n"))
 }
 
 func handleQueryPos(w http.ResponseWriter, r *http.Request) {
+	//TODO
 	w.Write([]byte("queryPos\n"))
 }

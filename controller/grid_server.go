@@ -19,34 +19,35 @@ type GridMsg struct {
 func Msg2Grid(appId, spaceId, gridId string, gridMsg *GridMsg) {
 	grid := GetGrid(appId, spaceId, gridId)
 	if grid != nil {
-		grid.MsgBox <- gridMsg
+		grid.PostMsg(gridMsg)
 	} else {
-		startGrid(appId, spaceId, gridId, gridMsg)
+		Msg2SpaceWait(appId, spaceId, IMSG_START_GRID, gridId)
+		grid = GetGrid(appId, spaceId, gridId)
+		if grid == nil {
+			log.Errorf("start grid_server[%v:%v:%v] failed, ignore msg:%v\n", appId, spaceId, gridId, gridMsg)
+			return
+		}
+		grid.PostMsg(gridMsg)
 	}
 }
 
-// waiting for started success.
-func startGrid(appId, spaceId, gridId string, gridMsg *GridMsg) *Grid {
+// unsafe multi goruntine
+func StartGrid(appId, spaceId, gridId string) *Grid {
 	GlobalWG.Add(1)
 	ch := make(chan struct{})
-	go gridServe(appId, spaceId, gridId, gridMsg, ch)
+	go gridServe(appId, spaceId, gridId, ch)
 	<- ch
 	grid := GetGrid(appId, spaceId, gridId)
-	//if grid == nil {
-	//	log.Errorf("start grid failed, %v:%v:%v", appId, spaceId, gridId)
-	//}
 	return grid
 }
 
-func gridServe(appId, spaceId, gridId string, gridMsg *GridMsg, ch chan struct{}) {
+func gridServe(appId, spaceId, gridId string, ch chan struct{}) {
 	defer GlobalWG.Done()
 
 	alreadyGrid := GetGrid(appId, spaceId, gridId)
 	if alreadyGrid != nil {
 		log.Infof("grid server[%v:%v:%v] already exist.", appId, spaceId, gridId)
-		if gridMsg != nil {
-			alreadyGrid.MsgBox <- gridMsg
-		}
+		close(ch) //started.
 		return
 	}
 
@@ -61,9 +62,6 @@ func gridServe(appId, spaceId, gridId string, gridMsg *GridMsg, ch chan struct{}
 	}()
 	close(ch) //started.
 
-	if gridMsg != nil {
-		grid.MsgBox <- gridMsg
-	}
 	// loop
 	for {
 		select {
@@ -72,7 +70,13 @@ func gridServe(appId, spaceId, gridId string, gridMsg *GridMsg, ch chan struct{}
 				return
 			}
 			log.Infof("handle msg:%v", data)
-			m := data.(*GridMsg)
+			m, ok := data.(*GridMsg)
+			if ok {
+
+			} else {
+
+			}
+
 			switch m.Cmd {
 			case pb.CmdJoinReq:
 				p := m.Msg.(*pb.JoinReq)
@@ -189,7 +193,12 @@ func move(appId, spaceId, gridId string, uid int32, req *pb.MoveReq) {
 	dstGridId := CalcGridId(req.GetPosX(), req.GetPosY(), space.GridWidth, space.GridHeight)
 	dstGrid := GetGrid(appId, spaceId, dstGridId)
 	if dstGrid == nil {
-		dstGrid = startGrid(appId, spaceId, dstGridId, nil)
+		Msg2SpaceWait(appId, spaceId, IMSG_START_GRID, dstGridId)
+		dstGrid = GetGrid(appId, spaceId, dstGridId)
+		if dstGrid == nil {
+			log.Errorln("start dst grid_server[%v:%v:%v] failed.", appId, spaceId, dstGridId)
+			return
+		}
 	}
 	//set session
 	s.UData.GridId = dstGridId

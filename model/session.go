@@ -12,6 +12,7 @@ type Session struct {
 	AppId       string
 	Uid         int32
 	ChanOut     chan []byte
+	Die 	    chan struct{}
 
 	IP          net.IP
 	Conn        net.Conn
@@ -42,7 +43,19 @@ func (s *Session) Rsp(cmd int32, payload proto.Message) {
 		log.Infoln("Error: Marshal packet failed!")
 		return
 	}
-	s.ChanOut <- data
+	if s != nil && s.ChanOut != nil {
+		s.ChanOut <- data
+	}
+}
+
+func (s *Session) Close() {
+	if s != nil && s.Die != nil {
+		close(s.Die)
+		s.Die = nil
+		if app, ok := AppL[s.AppId]; ok {
+			delete(app.SessionM, s.Uid)
+		}
+	}
 }
 
 func (s *Session) HasLogin() bool {
@@ -54,7 +67,7 @@ func (s *Session) HasLogin() bool {
 
 
 func SetSession(appId string, uid int32, s *Session) {
-	if app, ok := AppInfoL[appId]; ok {
+	if app, ok := AppL[appId]; ok {
 		app.SessionM[uid] = s
 	} else {
 		log.Errorln("not found app")
@@ -62,17 +75,8 @@ func SetSession(appId string, uid int32, s *Session) {
 }
 
 func GetSession(appId string, uid int32) *Session {
-	if app, ok := AppInfoL[appId]; ok {
+	if app, ok := AppL[appId]; ok {
 		if s, ok := app.SessionM[uid]; ok {
-			return s
-		}
-	}
-	return nil
-}
-
-func GetSpace(appId, spaceId string) *Space {
-	if app, ok := AppInfoL[appId]; ok {
-		if s, ok := app.SpaceM[spaceId]; ok {
 			return s
 		}
 	}
@@ -81,7 +85,7 @@ func GetSpace(appId, spaceId string) *Space {
 
 //get user current space_id, grid x y
 func GetUserData(appId string, uid int32) *UserInfo {
-	if app, ok := AppInfoL[appId]; ok {
+	if app, ok := AppL[appId]; ok {
 		if s, ok := app.SessionM[uid]; ok {
 			return s.UData
 		}

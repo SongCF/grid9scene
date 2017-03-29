@@ -17,8 +17,8 @@ PRIMARY KEY (`app_id`)
 CREATE TABLE `space` (
   `app_id` VARCHAR(64) NOT NULL COMMENT '应用id',
   `space_id` VARCHAR(64) NOT NULL COMMENT '应用的场景id',
-  `grid_width` int(11) unsigned NOT NULL COMMENT '场景九宫格宽',
-  `grid_height` int(11) unsigned NOT NULL COMMENT '场景九宫格高',
+  `grid_width` FLOAT unsigned NOT NULL COMMENT '场景九宫格宽',
+  `grid_height` FLOAT unsigned NOT NULL COMMENT '场景九宫格高',
   PRIMARY KEY (`app_id`,`space_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

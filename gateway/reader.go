@@ -61,6 +61,8 @@ func handleClient(conn net.Conn) {
 
 		select {
 		case in <- readBuf[:size]:
+		case <- s.Die:
+			return
 		case <- GlobalDie:
 			return
 		}
