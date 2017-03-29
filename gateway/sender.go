@@ -23,6 +23,7 @@ func sender(s *Session) {
 			}
 			sendData(s.Conn, data, writeBuf)
 		case <- s.Die:
+			s.Conn.Close()
 			return
 		case <- GlobalDie:
 			s.Conn.Close()
