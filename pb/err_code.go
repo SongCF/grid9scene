@@ -8,11 +8,15 @@ import (
 // 场景服务	10070000	10079999
 
 type ErrInfo struct {
-	Id int32
-	Desc string
+	Id int32 `json:"code"`
+	Desc string `json:"msg"`
+	Ex interface{} `json:"response,omitempty"`
 }
 
 var (
+	//无错
+	ErrSuccess = &ErrInfo{Id:10000000, Desc:"Success"}
+
 	//数据库出错
 	ErrQueryDBError = &ErrInfo{Id:10070001, Desc:"query database error"}
 	//请求超时

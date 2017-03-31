@@ -9,7 +9,7 @@ import (
 type Grid struct {
 	GridId string      // "x,y"
 	UidM map[int32]bool  // grid uid list
-	MsgBox chan interface{} // message box
+	MsgBox chan interface{} `json:"-"`// message box
 }
 
 func (g *Grid) PostMsg(m interface{}) {

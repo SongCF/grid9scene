@@ -13,7 +13,7 @@ import (
 
 func agent(s *Session, in chan []byte) {
 	defer func() {
-		log.Debug("---session agent end.")
+		log.Info("---session agent end.")
 	}()
 
 	minTimer := time.After(time.Minute)
@@ -42,7 +42,6 @@ func agent(s *Session, in chan []byte) {
 
 func handleMsg(s *Session, m []byte) (int32, proto.Message) {
 	if s == nil {
-		//TODO tick out
 		return pb.Error(0, pb.ErrUser)
 	}
 	packet := &pb.Packet{}

@@ -8,7 +8,7 @@ import (
 
 func CheckError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		os.Exit(-1)
 	}
 }

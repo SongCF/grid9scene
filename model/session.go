@@ -11,11 +11,11 @@ import (
 type Session struct {
 	AppId       string
 	Uid         int32
-	ChanOut     chan []byte
-	Die 	    chan struct{}
+	ChanOut     chan []byte `json:"-"`
+	Die 	    chan struct{} `json:"-"`
 
 	IP          net.IP
-	Conn        net.Conn
+	Conn        net.Conn `json:"-"`
 	PacketCount int32         //对包进行计数
 	ConnectTime time.Time
 

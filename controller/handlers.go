@@ -79,16 +79,16 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 	}
 	if payload.GetUseLast() {
 		// query last space from db
-		raw := DB.QueryRow("SELECT space_id FROM ? WHERE app_id = ? , user_id = ? ;",
-			TBL_LAST_SPACE, s.AppId, s.Uid)
+		raw := DB.QueryRow("SELECT space_id FROM last_space WHERE app_id=? and user_id=?;",
+			s.AppId, s.Uid)
 		var tmpSpaceId string
 		err = raw.Scan(&tmpSpaceId) // if empty, err = sql.ErrNoRows
 		if err == nil {
 			spaceId = tmpSpaceId
 		}
 		// query last pos from db
-		raw = DB.QueryRow("SELECT x,y,angle FROM ? WHERE app_id = ? , user_id = ? , space_id = ? ;",
-			TBL_LAST_POS, s.AppId, s.Uid, payload.GetSpaceId())
+		raw = DB.QueryRow("SELECT x,y,angle FROM last_pos WHERE app_id=? and user_id=? and space_id=?;",
+			s.AppId, s.Uid, payload.GetSpaceId())
 		var tmpX, tmpY, tmpAngle float32
 		err = raw.Scan(&tmpX, &tmpY, &tmpAngle)
 		if err == nil {
@@ -167,10 +167,10 @@ func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
 			if err != nil {
 				log.Errorln("save last space and pos failed")
 			} else {
-				tx.Exec("REPLACE INTO ?(app_id,user_id,space_id) VALUES(?,?,?);",
-					TBL_LAST_SPACE, s.AppId, s.Uid, s.UData.SpaceId)
-				tx.Exec("REPLACE INTO ?(app_id,user_id,space_id,x,y,angle) VALUES(?,?,?,?,?,?);",
-					TBL_LAST_POS, s.AppId, s.Uid, s.UData.SpaceId, s.UData.PosX, s.UData.PosY, s.UData.Angle)
+				tx.Exec("REPLACE INTO last_space(app_id,user_id,space_id) VALUES(?,?,?);",
+					s.AppId, s.Uid, s.UData.SpaceId)
+				tx.Exec("REPLACE INTO last_pos(app_id,user_id,space_id,x,y,angle) VALUES(?,?,?,?,?,?);",
+					s.AppId, s.Uid, s.UData.SpaceId, s.UData.PosX, s.UData.PosY, s.UData.Angle)
 				err = tx.Commit()
 				if err != nil {
 					log.Errorln("delete app failed, db commit failed")

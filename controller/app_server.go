@@ -6,6 +6,7 @@ import (
 	. "jhqc.com/songcf/scene/global"
 	"sync"
 	"jhqc.com/songcf/scene/pb"
+	"database/sql"
 )
 
 
@@ -50,12 +51,16 @@ func appServe(appId string, ch chan struct{}) {
 	}
 
 	// query app info from db
-	raw := DB.QueryRow("SELECT app_id FROM ? WHERE app_id=?;",
-		TBL_APP, appId)
+	raw := DB.QueryRow("SELECT app_id FROM app WHERE app_id=?;", appId)
 	var q string
 	err := raw.Scan(&q) // if empty, err = sql.ErrNoRows
+	if err == sql.ErrNoRows {
+		log.Infof("App(%v) doesn't exist.", appId)
+		close(ch)
+		return
+	}
 	if err != nil {
-		log.Errorf("query db error = %v\n", err)
+		log.Errorf("select appid error(%v) = %v\n", appId, err)
 		close(ch)
 		return
 	}
@@ -82,7 +87,7 @@ func appServe(appId string, ch chan struct{}) {
 			if !ok {
 				return
 			}
-			log.Infof("handle app msg:%v", data)
+			log.Infof("handle app msg:%v", data.Id)
 			switch data.Id {
 			case IMSG_START_SPACE:
 				StartSpace(appId, data.SpaceId)
@@ -107,10 +112,10 @@ func CreateApp(appId, name, key string) *pb.ErrInfo {
 		return nil
 	}
 	//db
-	_, err := DB.Exec("INSERT INTO ?(app_id,name,private_key) values(?,?,?);",
-		TBL_APP, appId, name, key)
-	if err != nil {
-		log.Errorf("create app failed, appid=%v", appId)
+	_, err := DB.Exec("INSERT INTO app(app_id,name,private_key) values(?,?,?);",
+		appId, name, key)
+	if err != nil && !IsDuplicate(err) {
+		log.Errorf("create app failed, appid=%v, err=%v", appId, err)
 		return pb.ErrQueryDBError
 	}
 	// start app_server
@@ -125,10 +130,10 @@ func DeleteApp(appId string) *pb.ErrInfo {
 		log.Errorln("delete app failed, db begin failed")
 		return pb.ErrQueryDBError
 	}
-	tx.Exec("DELETE FROM ? WHERE app_id=?;", TBL_APP, appId)
-	tx.Exec("DELETE FROM ? WHERE app_id=?;", TBL_SPACE, appId)
-	tx.Exec("DELETE FROM ? WHERE app_id=?;", TBL_LAST_SPACE, appId)
-	tx.Exec("DELETE FROM ? WHERE app_id=?;", TBL_LAST_POS, appId)
+	tx.Exec("DELETE FROM app WHERE app_id=?;", appId)
+	tx.Exec("DELETE FROM space WHERE app_id=?;", appId)
+	tx.Exec("DELETE FROM last_space WHERE app_id=?;", appId)
+	tx.Exec("DELETE FROM last_pos WHERE app_id=?;", appId)
 	err = tx.Commit()
 	if err != nil {
 		log.Errorln("delete app failed, db commit failed")

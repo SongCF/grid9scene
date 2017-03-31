@@ -7,7 +7,7 @@ type UserInfo struct {
 	PosX	     float32
 	PosY	     float32
 	Angle 	     float32
-	ExData	     []byte
+	ExData	     []byte `json:"-"`
 	MoveTime     int32
 }
 

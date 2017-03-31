@@ -9,11 +9,20 @@ package pb;
 
 
 /**************************************************************/
-
+// 第一层pb
 message packet {
   required int32 cmd = 1;
-  required bytes payload = 2;
+  required int32 vsn = 2;
+  required bytes payload = 3;
+  optional bytes service = 4;
 }
+
+
+
+/**************************************************************/
+// 第二层pb
+
+
 
 // 玩家
 message user_data {
@@ -23,11 +32,6 @@ message user_data {
     required float angle = 4;
     optional bytes ex_data = 5;
 }
-
-
-
-
-/**************************************************************/
 
 // 通用错误
 // cmd:10012

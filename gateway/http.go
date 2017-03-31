@@ -5,7 +5,19 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/controller"
+	"encoding/json"
+	"jhqc.com/songcf/scene/pb"
+	"strconv"
 )
+
+
+type userPos struct {
+	SpaceId string `json:"space_id"`
+	PosX float32 `json:"pos_x"`
+	PosY float32 `json:"pos_y"`
+	Angle float32 `json:"angle"`
+}
+
 
 func HttpServer() {
 	r := mux.NewRouter()
@@ -19,48 +31,79 @@ func HttpServer() {
 }
 
 
+//"http://127.0.0.1:9911/api/v1/app/1?user_id=1&token=abc123"
 func handleCreateApp(w http.ResponseWriter, r *http.Request) {
-	appId := "1"
-	err := CreateApp(appId, "1", "1")
-	if err != nil {
-		//TODO
-		w.Write([]byte("createApp failed\n"))
-		return
+	vars := mux.Vars(r)
+	appId := vars["aid"]
+	eInfo := CreateApp(appId, "test", "test")
+	rsp := pb.ErrSuccess
+	if eInfo != nil {
+		rsp = eInfo
 	}
-	w.Write([]byte("createApp success\n"))
+	b, err := json.Marshal(rsp)
+	if err != nil {
+		log.Errorf("json encode failed, rsp=%v", rsp)
+	}
+	w.Write(b)
 }
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
-	err := DeleteApp("1")
-	if err != nil {
-		//TODO
-		w.Write([]byte("deleteApp failed\n"))
-		return
+	vars := mux.Vars(r)
+	appId := vars["aid"]
+	eInfo := DeleteApp(appId)
+	rsp := pb.ErrSuccess
+	if eInfo != nil {
+		rsp = eInfo
 	}
-	w.Write([]byte("deleteApp\n"))
+	b, err := json.Marshal(rsp)
+	if err != nil {
+		log.Errorf("json encode failed, rsp=%v", rsp)
+	}
+	w.Write(b)
 }
 
+//"http://127.0.0.1:9911/api/v1/app/1/space/1?user_id=1&token=abc123&grid_width=10&grid_height=10"
 func handleCreateSpace(w http.ResponseWriter, r *http.Request) {
-	err := CreateSpace("1", "1", 1, 1)
-	if err != nil {
-		//TODO
-		w.Write([]byte("createSpace failed\n"))
-		return
+	vars := mux.Vars(r)
+	appId := vars["aid"]
+	spaceId := vars["sid"]
+	r.ParseForm()
+	width, err1 := strconv.ParseFloat(r.Form.Get("grid_width"), 32)
+	height, err2 := strconv.ParseFloat(r.Form.Get("grid_height"), 32)
+
+	rsp := pb.ErrSuccess
+	if err1 != nil || err2 != nil {
+		rsp = pb.ErrMsgFormat
+	} else {
+		eInfo := CreateSpace(appId, spaceId, float32(width), float32(height))
+		if eInfo != nil {
+			rsp = eInfo
+		}
 	}
-	w.Write([]byte("createSpace\n"))
+	b, err := json.Marshal(rsp)
+	if err != nil {
+		log.Errorf("json encode failed, rsp=%v", rsp)
+	}
+	w.Write(b)
 }
 
 func handleDeleteSpace(w http.ResponseWriter, r *http.Request) {
-	err := DeleteSpace("1", "1")
-	if err != nil {
-		//TODO
-		w.Write([]byte("deleteSpace failed\n"))
-		return
+	vars := mux.Vars(r)
+	appId := vars["aid"]
+	spaceId := vars["sid"]
+	eInfo := DeleteSpace(appId, spaceId)
+	rsp := pb.ErrSuccess
+	if eInfo != nil {
+		rsp = eInfo
 	}
-	w.Write([]byte("deleteSpace\n"))
+	b, err := json.Marshal(rsp)
+	if err != nil {
+		log.Errorf("json encode failed, rsp=%v", rsp)
+	}
+	w.Write(b)
 }
 
 func handleQueryPos(w http.ResponseWriter, r *http.Request) {
 	//TODO
-	w.Write([]byte("queryPos\n"))
+	w.Write([]byte("{\"msg\" : \"queryPos\"}\n"))
 }

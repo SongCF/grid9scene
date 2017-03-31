@@ -6,7 +6,7 @@ type Space struct {
 	GridWidth  float32            // 9-grid width
 	GridHeight float32            // 9-grid height
 	GridM      map[string]*Grid // gridId : Grid
-	MsgBox chan *InnerMsg // message box
+	MsgBox chan *InnerMsg `json:"-"`// message box
 }
 
 func (s *Space) PostMsg(m *InnerMsg) {

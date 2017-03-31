@@ -1,11 +1,10 @@
 package model
 
 
-
 type App struct {
 	SpaceM map[string]*Space      // spaceId : Space
 	SessionM map[int32]*Session // uid : Session
-	MsgBox chan *InnerMsg // message box
+	MsgBox chan *InnerMsg `json:"-"`// message box
 }
 
 func (app *App) PostMsg(msg *InnerMsg) {

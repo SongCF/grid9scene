@@ -5,6 +5,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
 	"jhqc.com/songcf/scene/pb"
+	"database/sql"
 )
 
 func Msg2SpaceWait(appId, spaceId string, imsg int32, gridId string) {
@@ -56,12 +57,16 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 	}
 
 	// query space info from db
-	raw := DB.QueryRow("SELECT grid_width,grid_height FROM ? WHERE app_id=?, space_id=?;",
-		TBL_SPACE, appId, spaceId)
+	raw := DB.QueryRow("SELECT grid_width,grid_height FROM space WHERE app_id=? and space_id=?;", appId, spaceId)
 	var w, h float32
 	err := raw.Scan(&w, &h) // if empty, err = sql.ErrNoRows
+	if err == sql.ErrNoRows {
+		log.Infof("Space(%v:%v) doesn't exist", appId, spaceId)
+		close(ch) //started.
+		return
+	}
 	if err != nil {
-		log.Errorf("query db error = %v\n", err)
+		log.Errorf("select grid w h error(%v:%v) = %v\n", appId, spaceId, err)
 		close(ch) //started.
 		return
 	}
@@ -77,7 +82,9 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 	app.SpaceM[spaceId] = space
 	defer func() {
 		//delete cache
-		delete(AppL, appId)
+		if app, ok := AppL[appId]; ok {
+			delete(app.SpaceM, spaceId)
+		}
 		log.Infof("space server stop. %v:%v", appId, spaceId)
 	}()
 
@@ -118,10 +125,10 @@ func CreateSpace(appId, spaceId string, gridWidth, gridHeight float32) *pb.ErrIn
 		return pb.ErrAppNotExist
 	}
 	//db
-	_, err := DB.Exec("INSERT INTO ?(app_id,space_id,grid_width,grid_height) values(?,?,?,?);",
-		TBL_SPACE, appId, spaceId, gridWidth, gridHeight)
-	if err != nil {
-		log.Errorf("create space failed, appid=%v,spaceid=%v", appId, spaceId)
+	_, err := DB.Exec("INSERT INTO space(app_id,space_id,grid_width,grid_height) values(?,?,?,?);",
+		appId, spaceId, gridWidth, gridHeight)
+	if err != nil && !IsDuplicate(err) {
+		log.Errorf("create space(%v:%v) failed, err=%v", appId, spaceId, err)
 		return pb.ErrQueryDBError
 	}
 	//start space_server
@@ -136,15 +143,14 @@ func DeleteSpace(appId, spaceId string) *pb.ErrInfo {
 		log.Errorln("delete space failed, db begin failed")
 		return pb.ErrQueryDBError
 	}
-	DB.Exec("DELETE FROM ? WHERE app_id=?, space_id=?;", TBL_SPACE, appId, spaceId)
-	tx.Exec("DELETE FROM ? WHERE app_id=?, space_id=?;", TBL_LAST_SPACE, appId, spaceId)
-	tx.Exec("DELETE FROM ? WHERE app_id=?, space_id=?;", TBL_LAST_POS, appId, spaceId)
+	DB.Exec("DELETE FROM space WHERE app_id=? and space_id=?;", appId, spaceId)
+	tx.Exec("DELETE FROM last_space WHERE app_id=? and space_id=?;", appId, spaceId)
+	tx.Exec("DELETE FROM last_pos WHERE app_id=? and space_id=?;", appId, spaceId)
 	err = tx.Commit()
 	if err != nil {
 		log.Errorln("delete space failed, db commit failed")
 		return pb.ErrQueryDBError
 	}
-
 	//delete cache, close server
 	space := GetSpace(appId, spaceId)
 	if space != nil {

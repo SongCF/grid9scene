@@ -27,7 +27,6 @@ func sender(s *Session) {
 			return
 		case <- GlobalDie:
 			s.Conn.Close()
-			//Don't close s.out, 如果grid server后退出，可能还会往里面写数据
 			return
 		}
 	}
