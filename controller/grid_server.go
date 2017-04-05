@@ -53,12 +53,18 @@ func gridServe(appId, spaceId, gridId string, ch chan struct{}) {
 
 	grid := &Grid{
 		GridId: gridId,
+		UidM: make(map[int32]bool),
 		MsgBox: make(chan interface{}),
 	}
 	SetGrid(appId, spaceId, gridId, grid)
 	defer func() {
-		RmGrid(appId, spaceId, gridId)
-		log.Debugf("grid server stop. %v:%v:%v", appId, spaceId, gridId)
+		//delete cache
+		if app, ok := AppL[appId]; ok {
+			if space, ok := app.SpaceM[spaceId]; ok {
+				delete(space.GridM, gridId)
+			}
+		}
+		log.Infof("grid server stop. %v:%v:%v", appId, spaceId, gridId)
 	}()
 	close(ch) //started.
 

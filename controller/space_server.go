@@ -83,6 +83,11 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 	defer func() {
 		//delete cache
 		if app, ok := AppL[appId]; ok {
+			if space != nil {
+				for _,grid := range space.GridM {
+					grid.Close()
+				}
+			}
 			delete(app.SpaceM, spaceId)
 		}
 		log.Infof("space server stop. %v:%v", appId, spaceId)
@@ -97,7 +102,7 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 			if !ok {
 				return
 			}
-			log.Infof("handle app msg:%v", data)
+			log.Infof("handle space msg:%v", data)
 			switch data.Id {
 			case IMSG_START_GRID:
 				StartGrid(appId, spaceId, data.GridId)
@@ -160,5 +165,13 @@ func DeleteSpace(appId, spaceId string) *pb.ErrInfo {
 	}
 	space.Close()
 	return nil
+}
+
+func LoadSpace(appId, spaceId string) *Space {
+	space := GetSpace(appId, spaceId)
+	if space == nil {
+		Msg2AppWait(appId, IMSG_START_SPACE, spaceId)
+	}
+	return GetSpace(appId, spaceId)
 }
 

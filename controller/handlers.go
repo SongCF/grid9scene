@@ -43,7 +43,6 @@ func LoginReq(s *Session, m []byte) (int32, proto.Message) {
 			Type: &t,
 		}
 		oldSess.Rsp(pb.CmdOfflineNtf, offlineMsg)
-		return 0, nil
 	}
 	// set session user info
 	s.AppId = string(payload.AppId)
@@ -96,6 +95,7 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 			y = tmpY
 			angle = tmpAngle
 		}
+		log.Debugf("---use last spaceid:%v, tmp:%v", spaceId,tmpSpaceId)
 	} else {
 		if payload.PosX != nil {
 			x = payload.GetPosX()
@@ -108,13 +108,13 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 		}
 	}
 	// calc grid id
-	spaceInfo := GetSpace(s.AppId, spaceId)
+	spaceInfo := LoadSpace(s.AppId, spaceId)
 	if spaceInfo == nil {
 		return pb.Error(pb.CmdJoinReq, pb.ErrSpaceNotExist)
 	}
 	joinGridId := CalcGridId(x, y, spaceInfo.GridWidth, spaceInfo.GridHeight)
 	// leave old space before join new space
-	if oldUserdata.SpaceId != "" {
+	if oldUserdata != nil && oldUserdata.SpaceId != "" {
 		//leave
 		leaveReq := &pb.LeaveReq{SpaceId: []byte(oldUserdata.SpaceId)}
 		gridMsg := &GridMsg{
@@ -134,7 +134,7 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 		Cmd: pb.CmdJoinReq,
 		Msg: payload,
 	}
-	Msg2Grid(s.AppId, oldUserdata.SpaceId, joinGridId, gridMsg)
+	Msg2Grid(s.AppId, spaceId, joinGridId, gridMsg)
 	return 0, nil
 }
 
@@ -151,17 +151,8 @@ func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
 	}
 	// has joined?
 	if s.UData != nil && s.UData.SpaceId != "" {
-		if s.UData.SpaceId == string(payload.GetSpaceId()) ||
-			payload.SpaceId == nil {
-			//leave request space_id
-			//leave current space_id
-			payload.SpaceId = []byte(s.UData.SpaceId)
-			gridMsg := &GridMsg{
-				Uid: s.Uid,
-				Cmd: pb.CmdLeaveReq,
-				Msg: payload,
-			}
-			Msg2Grid(s.AppId, s.UData.SpaceId, s.UData.GridId, gridMsg)
+		if payload.SpaceId == nil ||
+			s.UData.SpaceId == string(payload.GetSpaceId()) {
 			//db: last space pos
 			tx, err := DB.Begin()
 			if err != nil {
@@ -176,9 +167,20 @@ func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
 					log.Errorln("delete app failed, db commit failed")
 				}
 			}
+			//leave request space_id
+			//leave current space_id
+			payload.SpaceId = []byte(s.UData.SpaceId)
+			gridMsg := &GridMsg{
+				Uid: s.Uid,
+				Cmd: pb.CmdLeaveReq,
+				Msg: payload,
+			}
+			Msg2Grid(s.AppId, s.UData.SpaceId, s.UData.GridId, gridMsg)
 		}
+	} else {
+		ack := &pb.LeaveAck{}
+		return pb.CmdLeaveAck, ack
 	}
-	//ignore
 	return 0, nil
 }
 
@@ -212,7 +214,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 }
 
 func BroadcastReq(s *Session, m []byte) (int32, proto.Message) {
-	payload := &pb.MoveReq{}
+	payload := &pb.BroadcastReq{}
 	err := proto.Unmarshal(m, payload)
 	if err != nil {
 		return pb.Error(pb.CmdBroadcastReq, pb.ErrMsgFormat)

@@ -45,7 +45,7 @@ func handleClient(conn net.Conn) {
 		readDeadline := 120 * time.Second  //TODO config
 		conn.SetReadDeadline(time.Now().Add(readDeadline))
 
-		n, err := io.ReadAtLeast(conn, readBuf, 4)
+		n, err := io.ReadAtLeast(conn, readBuf[:4], 4)
 		if err != nil {
 			log.Error("read header error:", err)
 			return
@@ -53,11 +53,12 @@ func handleClient(conn net.Conn) {
 		size := binary.BigEndian.Uint32(readBuf[:4])
 
 		// read data
-		n, err = io.ReadAtLeast(conn, readBuf, int(size))
+		n, err = io.ReadAtLeast(conn, readBuf[:size], int(size))
 		if err != nil {
 			log.Errorf("read payload failed, ip:%v reason:%v size:%v\n", s.IP, err, n)
 			return
 		}
+		log.Debugf("---read head size=%v, n=%v", size, n)
 
 		select {
 		case in <- readBuf[:size]:

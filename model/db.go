@@ -13,7 +13,7 @@ var DB *sql.DB
 
 func InitDB() {
 	log.Info("init db")
-	mysql, err := sql.Open("mysql", "root:123456@tcp(192.168.31.216:3306)/scene_db?charset=utf8")
+	mysql, err := sql.Open("mysql", "root:123456@tcp(139.198.5.219:3308)/scene_db?charset=utf8")
 	if err != nil {
 		panic(err)
 	}

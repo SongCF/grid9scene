@@ -38,7 +38,7 @@ func GetGridId(x, y int32) string {
 
 func GetGridXY(gridId string) (int32, int32, error) {
 	var x, y int32
-	_, err := fmt.Sscanf(gridId, "%d,%d", x, y)
+	_, err := fmt.Sscanf(gridId, "%d,%d", &x, &y)
 	return x, y, err
 }
 
@@ -47,7 +47,7 @@ func RoundGridAndSelf(gridId string) *[]string {
 	gridIdL := []string{}
 	x, y, err := GetGridXY(gridId)
 	if err != nil {
-		log.Errorf("get gridxy failed, gridid=%v", gridId)
+		log.Errorf("get gridxy failed, gridid=%v, err=%v", gridId, err)
 		return &gridIdL
 	}
 	gridIdL = append(gridIdL, GetGridId(x-1, y-1))

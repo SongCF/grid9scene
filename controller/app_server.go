@@ -74,6 +74,19 @@ func appServe(appId string, ch chan struct{}) {
 	AppL[appId] = app
 	defer func() {
 		//delete cache
+		if app != nil {
+			//delete user session
+			for _,s := range app.SessionM {
+				s.Close()
+			}
+			//delete cache, close server
+			for _,space := range app.SpaceM {
+				for _,grid := range space.GridM {
+					grid.Close()
+				}
+				space.Close()
+			}
+		}
 		delete(AppL, appId)
 		log.Infof("app server stop. %v", appId)
 	}()

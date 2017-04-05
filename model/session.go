@@ -34,9 +34,11 @@ func (s *Session) Rsp(cmd int32, payload proto.Message) {
 		log.Infoln("Error: Marshal payload failed!")
 		return
 	}
+	var vsn int32 = 1
 	packet := &pb.Packet{
 		Cmd: &cmd,
 		Payload: m,
+		Vsn: &vsn,
 	}
 	data, err := proto.Marshal(packet)
 	if err != nil {

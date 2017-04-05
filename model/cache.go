@@ -38,11 +38,3 @@ func SetGrid(appId, spaceId, gridId string, g *Grid) {
 		log.Errorln("not found app:", appId)
 	}
 }
-
-func RmGrid(appId, spaceId, gridId string) {
-	if app, ok := AppL[appId]; ok {
-		if space, ok := app.SpaceM[spaceId]; ok {
-			delete(space.GridM, gridId)
-		}
-	}
-}

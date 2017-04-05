@@ -31,3 +31,4 @@ func GetSpace(appId, spaceId string) *Space {
 	}
 	return nil
 }
+
