@@ -5,18 +5,12 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	. "jhqc.com/songcf/scene/controller"
+	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
 	. "jhqc.com/songcf/scene/util"
 	"net/http"
 	"strconv"
 )
-
-type userPos struct {
-	SpaceId string  `json:"space_id"`
-	PosX    float32 `json:"pos_x"`
-	PosY    float32 `json:"pos_y"`
-	Angle   float32 `json:"angle"`
-}
 
 func HttpServer() {
 	addr := Conf.Get(SCT_HTTP, "http_server")
@@ -103,7 +97,27 @@ func handleDeleteSpace(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+//"http://127.0.0.1:9911/api/v1/app/1/user/1/pos?user_id=1&token=abc123"
 func handleQueryPos(w http.ResponseWriter, r *http.Request) {
-	//TODO
-	w.Write([]byte("{\"msg\" : \"queryPos\"}\n"))
+	vars := mux.Vars(r)
+	appId := vars["aid"]
+	queryUidStr := vars["uid"]
+
+	rsp := pb.ErrSuccess
+	queryUid, err1 := strconv.Atoi(queryUidStr)
+	if err1 != nil {
+		rsp = pb.ErrMsgFormat
+	} else {
+		tarSess := GetSession(appId, int32(queryUid))
+		if tarSess == nil || tarSess.UData == nil {
+			rsp = pb.ErrUserOffline
+		} else {
+			rsp.Ex = tarSess.UData
+		}
+	}
+	b, err := json.Marshal(rsp)
+	if err != nil {
+		log.Errorf("json encode failed, rsp=%v", rsp)
+	}
+	w.Write(b)
 }
