@@ -3,24 +3,40 @@ package model
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/golang/protobuf/proto"
 )
 
 
 type Grid struct {
 	GridId string      // "x,y"
 	UidM map[int32]bool  // grid uid list
-	MsgBox chan interface{} `json:"-"`// message box
+	MsgBox chan *GridMsg `json:"-"`// message box
+	Die chan struct{} `json:"-"`
 }
 
-func (g *Grid) PostMsg(m interface{}) {
-	if g != nil && g.MsgBox != nil && m != nil {
-		g.MsgBox <- m
+type GridMsg struct {
+	Uid int32    //req uid
+	Cmd int32    //req cmd
+	Msg proto.Message
+	ExData interface{}
+}
+
+
+func (g *Grid) PostMsg(m *GridMsg) {
+	if g != nil && m != nil {
+		select {
+		case <- g.Die:
+		case g.MsgBox <- m:
+		}
 	}
 }
 func (g *Grid) Close() {
-	if g != nil && g.MsgBox != nil {
-		close(g.MsgBox)
-		g.MsgBox = nil
+	if g != nil {
+		select {
+		case <- g.Die:
+		default:
+			close(g.Die)
+		}
 	}
 }
 

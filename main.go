@@ -18,7 +18,7 @@ func main() {
 	//
 	wd, err := os.Getwd()
 	CheckError(err)
-	log.Infof("work dir: %s", wd)
+	log.Println("work dir: ", wd)
 
 
 	go HandleSignal()

@@ -12,9 +12,7 @@ import (
 
 
 func agent(s *Session, in chan []byte) {
-	defer func() {
-		log.Info("---session agent end.")
-	}()
+	defer log.Debug("---session agent end.")
 
 	minTimer := time.After(time.Minute)
 	for {

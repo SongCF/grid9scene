@@ -51,11 +51,27 @@ func (s *Session) Rsp(cmd int32, payload proto.Message) {
 }
 
 func (s *Session) Close() {
-	if s != nil && s.Die != nil {
-		close(s.Die)
-		s.Die = nil
-		if app, ok := AppL[s.AppId]; ok {
-			delete(app.SessionM, s.Uid)
+	if s != nil {
+		select {
+		case <- s.Die: //check already closed
+		default:
+			close(s.Die)
+			// post leave
+			if s.UData != nil && s.AppId != "" && s.UData.SpaceId != "" && s.UData.GridId != "" {
+				payload := &pb.LeaveReq{SpaceId: []byte(s.UData.SpaceId)}
+				gridMsg := &GridMsg{
+					Uid: s.Uid,
+					Cmd: pb.CmdLeaveReq,
+					Msg: payload,
+					ExData: s.UData,
+				}
+				grid := GetGrid(s.AppId, s.UData.SpaceId, s.UData.GridId)
+				grid.PostMsg(gridMsg)
+			}
+			// delete session
+			if app, ok := AppL[s.AppId]; ok {
+				delete(app.SessionM, s.Uid)
+			}
 		}
 	}
 }

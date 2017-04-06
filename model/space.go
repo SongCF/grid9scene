@@ -7,18 +7,25 @@ type Space struct {
 	GridHeight float32            // 9-grid height
 	GridM      map[string]*Grid // gridId : Grid
 	MsgBox chan *InnerMsg `json:"-"`// message box
+	Die chan struct{} `json:"-"`
 }
 
 func (s *Space) PostMsg(m *InnerMsg) {
-	if s != nil && s.MsgBox != nil && m != nil {
-		s.MsgBox <- m
+	if s != nil && m != nil {
+		select {
+		case <- s.Die:
+		case s.MsgBox <- m:
+		}
 	}
 }
 
 func (s *Space) Close() {
-	if s != nil && s.MsgBox != nil {
-		close(s.MsgBox)
-		s.MsgBox = nil
+	if s != nil {
+		select {
+		case <- s.Die:
+		default:
+			close(s.Die)
+		}
 	}
 }
 

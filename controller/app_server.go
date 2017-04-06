@@ -70,6 +70,7 @@ func appServe(appId string, ch chan struct{}) {
 		SpaceM: make(map[string]*Space),
 		SessionM: make(map[int32]*Session),
 		MsgBox: make(chan *InnerMsg),
+		Die: make(chan struct{}),
 	}
 	AppL[appId] = app
 	defer func() {
@@ -108,6 +109,8 @@ func appServe(appId string, ch chan struct{}) {
 			default:
 				log.Infof("app_server handle unknow msg:%v", data.Id)
 			}
+		case <- app.Die:
+			return
 		case <- GlobalDie:
 			return
 		}

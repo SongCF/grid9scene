@@ -95,7 +95,6 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 			y = tmpY
 			angle = tmpAngle
 		}
-		log.Debugf("---use last spaceid:%v, tmp:%v", spaceId,tmpSpaceId)
 	} else {
 		if payload.PosX != nil {
 			x = payload.GetPosX()
@@ -153,20 +152,6 @@ func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
 	if s.UData != nil && s.UData.SpaceId != "" {
 		if payload.SpaceId == nil ||
 			s.UData.SpaceId == string(payload.GetSpaceId()) {
-			//db: last space pos
-			tx, err := DB.Begin()
-			if err != nil {
-				log.Errorln("save last space and pos failed")
-			} else {
-				tx.Exec("REPLACE INTO last_space(app_id,user_id,space_id) VALUES(?,?,?);",
-					s.AppId, s.Uid, s.UData.SpaceId)
-				tx.Exec("REPLACE INTO last_pos(app_id,user_id,space_id,x,y,angle) VALUES(?,?,?,?,?,?);",
-					s.AppId, s.Uid, s.UData.SpaceId, s.UData.PosX, s.UData.PosY, s.UData.Angle)
-				err = tx.Commit()
-				if err != nil {
-					log.Errorln("delete app failed, db commit failed")
-				}
-			}
 			//leave request space_id
 			//leave current space_id
 			payload.SpaceId = []byte(s.UData.SpaceId)
@@ -174,12 +159,10 @@ func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
 				Uid: s.Uid,
 				Cmd: pb.CmdLeaveReq,
 				Msg: payload,
+				ExData: s.UData,
 			}
 			Msg2Grid(s.AppId, s.UData.SpaceId, s.UData.GridId, gridMsg)
 		}
-	} else {
-		ack := &pb.LeaveAck{}
-		return pb.CmdLeaveAck, ack
 	}
 	return 0, nil
 }

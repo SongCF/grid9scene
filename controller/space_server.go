@@ -78,6 +78,7 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 		GridHeight: h,
 		GridM: make(map[string]*Grid),
 		MsgBox: make(chan *InnerMsg),
+		Die: make(chan struct{}),
 	}
 	app.SpaceM[spaceId] = space
 	defer func() {
@@ -110,6 +111,8 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 			default:
 				log.Infof("space_server handle unknow msg")
 			}
+		case <- space.Die:
+			return
 		case <- GlobalDie:
 			return
 		}

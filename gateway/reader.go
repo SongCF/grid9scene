@@ -7,13 +7,12 @@ import (
 	"net"
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
+	. "jhqc.com/songcf/scene/util"
 	"encoding/binary"
 )
 
 func handleClient(conn net.Conn) {
-	defer func() {
-		log.Debug("---session reader end.")
-	}()
+	defer log.Debug("---session reader end.")
 
 	host, port, err := net.SplitHostPort(conn.RemoteAddr().String())
 	if err != nil {
@@ -29,7 +28,9 @@ func handleClient(conn net.Conn) {
 	s.PacketCount = 0
 	s.ConnectTime = time.Now()
 	s.ChanOut = make(chan []byte)
+	s.Die = make(chan struct{})
 
+	defer s.Close()
 
 	in := make(chan []byte)
 	defer close(in)
@@ -47,7 +48,7 @@ func handleClient(conn net.Conn) {
 
 		n, err := io.ReadAtLeast(conn, readBuf[:4], 4)
 		if err != nil {
-			log.Error("read header error:", err)
+			log.Info("read header error:", err)
 			return
 		}
 		size := binary.BigEndian.Uint32(readBuf[:4])
@@ -58,7 +59,6 @@ func handleClient(conn net.Conn) {
 			log.Errorf("read payload failed, ip:%v reason:%v size:%v\n", s.IP, err, n)
 			return
 		}
-		log.Debugf("---read head size=%v, n=%v", size, n)
 
 		select {
 		case in <- readBuf[:size]:
