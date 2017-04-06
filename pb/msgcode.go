@@ -27,7 +27,7 @@ var Code = map[string]int{
 	"query_pos_req": 20050, // 查询位置请求
 	"query_pos_ack": 20051, // 查询位置返回
 	"heartbeat_req": 20061, // 系统预留，用于表示心跳
-	"heartbeat_ack": 20062, // 心跳回复包
+	"heartbeat_ack": 20062, //
 }
 
 var RCode = map[int]string{
@@ -51,7 +51,7 @@ var RCode = map[int]string{
 	20050: "query_pos_req", // 查询位置请求
 	20051: "query_pos_ack", // 查询位置返回
 	20061: "heartbeat_req", // 系统预留，用于表示心跳
-	20062: "heartbeat_ack", // 心跳回复包
+	20062: "heartbeat_ack", //
 }
 
 const (
@@ -76,5 +76,5 @@ const (
 	CmdQueryPosReq  = 20050 // 查询位置请求
 	CmdQueryPosAck  = 20051 // 查询位置返回
 	CmdHeartbeatReq = 20061 // 系统预留，用于表示心跳
-	CmdHeartbeatAck = 20062 // 心跳回复包
+	CmdHeartbeatAck = 20062 //
 )

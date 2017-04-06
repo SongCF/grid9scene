@@ -33,6 +33,9 @@ message user_data {
     optional bytes ex_data = 5;
 }
 
+
+
+
 // 通用错误
 // cmd:10012
 message error_ntf {
@@ -40,8 +43,6 @@ message error_ntf {
     required bytes msg = 2;
     required int32 req = 3;
 }
-
-
 
 
 
@@ -67,12 +68,12 @@ message offline_ntf {
 // 加入场景请求
 // cmd:20010
 message join_req {
-    required bool use_last = 1;
-    required bytes space_id = 2;
-    optional float pos_x = 3;
-    optional float pos_y = 4;
-    optional float angle = 5;
-    optional bytes ex_data = 6;
+    required bytes space_id = 1;
+    optional float pos_x = 2;
+    optional float pos_y = 3;
+    optional float angle = 4;
+    required bool use_last = 5;
+    required bytes ex_data = 6;
 }
 // 加入场景返回
 // cmd:20011
@@ -167,10 +168,7 @@ message query_pos_ack {
 // cmd:20061
 message heartbeat_req {
 }
-// 心跳回复包
 // cmd:20062
 message heartbeat_ack {
 }
-
-
 
