@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"jhqc.com/songcf/scene/pb"
 	"strconv"
+	. "jhqc.com/songcf/scene/util"
 )
 
 
@@ -20,6 +21,7 @@ type userPos struct {
 
 
 func HttpServer() {
+	addr := Conf.Get(SCT_HTTP, "http_server")
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/app/{aid}", handleCreateApp).Methods("POST")
 	r.HandleFunc("/api/v1/app/{aid}", handleDeleteApp).Methods("DELETE")
@@ -27,7 +29,8 @@ func HttpServer() {
 	r.HandleFunc("/api/v1/app/{aid}/space/{sid}", handleDeleteSpace).Methods("DELETE")
 	r.HandleFunc("/api/v1/app/{aid}/user/{uid:[0-9]+}/pos", handleQueryPos).Methods("GET")
 	//r.StrictSlash(true)
-	log.Fatal(http.ListenAndServe(":9911", r))
+	log.Println("http server listening on: ", addr)
+	log.Fatal(http.ListenAndServe(addr, r))
 }
 
 

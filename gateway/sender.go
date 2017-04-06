@@ -14,7 +14,7 @@ func sender(s *Session) {
 	}()
 	defer GlobalWG.Done()
 
-	writeBuf := make([]byte, 2048)
+	writeBuf := make([]byte, WriteBufSize)
 	for {
 		select {
 		case data, ok := <- s.ChanOut:
@@ -36,7 +36,7 @@ func sendData(conn net.Conn, data []byte, cache []byte) bool {
 	log.Info("... send data ...")
 	size := len(data)
 	binary.BigEndian.PutUint32(cache, uint32(size))
-	copy(cache[4:], data)  //TODO 4, config
+	copy(cache[4:], data)
 
 	n, err := conn.Write(cache[:size+4])
 	if err != nil {

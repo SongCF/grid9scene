@@ -5,8 +5,9 @@ import (
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/gateway"
 	. "jhqc.com/songcf/scene/model"
-	"jhqc.com/songcf/scene/util"
+	. "jhqc.com/songcf/scene/util"
 	. "jhqc.com/songcf/scene/controller"
+	"os"
 )
 
 
@@ -14,7 +15,16 @@ import (
 func main() {
 	log.SetLevel(log.DebugLevel)
 
+	//
+	wd, err := os.Getwd()
+	CheckError(err)
+	log.Infof("work dir: %s", wd)
+
+
 	go HandleSignal()
+
+	//load config
+	InitConf()
 
 	InitDB()
 	loadAppTbl()
@@ -36,7 +46,7 @@ func main() {
 func loadAppTbl() {
 	rows, err := DB.Query("SELECT app_id FROM app;")
 	defer rows.Close()
-	util.CheckError(err)
+	CheckError(err)
 	for rows.Next() {
 		var appId string
 		if err := rows.Scan(&appId); err != nil {

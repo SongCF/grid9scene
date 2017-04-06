@@ -7,19 +7,24 @@ import (
 	"github.com/gorilla/mux"
 	. "jhqc.com/songcf/scene/model"
 	"encoding/json"
+	. "jhqc.com/songcf/scene/util"
 	"fmt"
 )
 
 func StartPProf() {
-	log.Println(http.ListenAndServe("localhost:6060", nil))
+	addr := Conf.Get(SCT_HTTP, "pprof")
+	log.Println("pprof listening on: ", addr)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
 
 func StartStats() {
+	addr := Conf.Get(SCT_HTTP, "stat")
 	r := mux.NewRouter()
 	r.HandleFunc("/stat/{type}", handleStat).Methods("GET")
 	//r.StrictSlash(true)
-	log.Fatal(http.ListenAndServe(":9912", r))
+	log.Println("stat listening on: ", addr)
+	log.Fatal(http.ListenAndServe(addr, r))
 }
 
 func handleStat(w http.ResponseWriter, r *http.Request) {

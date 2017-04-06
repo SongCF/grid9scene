@@ -40,9 +40,9 @@ func handleClient(conn net.Conn) {
 	go sender(&s)
 
 	//reader
-	readBuf := make([]byte, 256)   // TODO config size
+	readBuf := make([]byte, ReadBufSize)
 	for {
-		readDeadline := 120 * time.Second  //TODO config
+		readDeadline := ReadDeadline * time.Second
 		conn.SetReadDeadline(time.Now().Add(readDeadline))
 
 		n, err := io.ReadAtLeast(conn, readBuf[:4], 4)
