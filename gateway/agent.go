@@ -7,11 +7,14 @@ import (
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
+	"jhqc.com/songcf/scene/util"
 	"time"
 )
 
 func agent(s *Session, in chan []byte) {
 	defer log.Debug("---session agent end.")
+	defer util.RecoverPanic()
+	defer s.Close()
 
 	minTimer := time.After(time.Minute)
 	for {
@@ -36,6 +39,7 @@ func agent(s *Session, in chan []byte) {
 }
 
 func handleMsg(s *Session, m []byte) (int32, proto.Message) {
+	defer util.RecoverPanic()
 	if s == nil {
 		return pb.Error(0, pb.ErrUser)
 	}

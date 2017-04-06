@@ -13,6 +13,7 @@ import (
 
 func handleClient(conn net.Conn) {
 	defer log.Debug("---session reader end.")
+	defer RecoverPanic()
 
 	host, port, err := net.SplitHostPort(conn.RemoteAddr().String())
 	if err != nil {

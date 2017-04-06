@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	defer RecoverPanic()
+
 	log.SetLevel(log.DebugLevel)
 
 	//

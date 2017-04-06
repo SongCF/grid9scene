@@ -6,6 +6,7 @@ import (
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
+	"jhqc.com/songcf/scene/util"
 	"sync"
 )
 
@@ -41,13 +42,13 @@ func StartApp(appId string) *App {
 }
 
 func appServe(appId string, ch chan struct{}) {
+	defer util.RecoverPanic()
 	alreadyApp := GetApp(appId)
 	if alreadyApp != nil {
 		log.Infof("app server[%v] already exist.", appId)
 		close(ch) //started.
 		return
 	}
-
 	// query app info from db
 	raw := DB.QueryRow("SELECT app_id FROM app WHERE app_id=?;", appId)
 	var q string
@@ -99,19 +100,24 @@ func appServe(appId string, ch chan struct{}) {
 			if !ok {
 				return
 			}
-			log.Infof("handle app msg:%v", data.Id)
-			switch data.Id {
-			case IMSG_START_SPACE:
-				StartSpace(appId, data.SpaceId)
-				close(data.Cb)
-			default:
-				log.Infof("app_server handle unknow msg:%v", data.Id)
-			}
+			handleAppMsg(appId, data)
 		case <-app.Die:
 			return
 		case <-GlobalDie:
 			return
 		}
+	}
+}
+
+func handleAppMsg(appId string, m *InnerMsg) {
+	defer util.RecoverPanic()
+	log.Infof("handle app msg:%v", m.Id)
+	switch m.Id {
+	case IMSG_START_SPACE:
+		StartSpace(appId, m.SpaceId)
+		close(m.Cb)
+	default:
+		log.Infof("app_server handle unknow msg:%v", m.Id)
 	}
 }
 

@@ -27,6 +27,7 @@ func StartStats() {
 }
 
 func handleStat(w http.ResponseWriter, r *http.Request) {
+	defer RecoverPanic()
 	vars := mux.Vars(r)
 	queryType := vars["type"]
 

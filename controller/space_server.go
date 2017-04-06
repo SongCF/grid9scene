@@ -6,6 +6,7 @@ import (
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
+	"jhqc.com/songcf/scene/util"
 )
 
 func Msg2SpaceWait(appId, spaceId string, imsg int32, gridId string) {
@@ -38,6 +39,7 @@ func StartSpace(appId, spaceId string) *Space {
 }
 
 func spaceServe(appId, spaceId string, ch chan struct{}) {
+	defer util.RecoverPanic()
 	// check already started.
 	alreadySpace := GetSpace(appId, spaceId)
 	if alreadySpace != nil {
@@ -100,19 +102,24 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 			if !ok {
 				return
 			}
-			log.Infof("handle space msg:%v", data)
-			switch data.Id {
-			case IMSG_START_GRID:
-				StartGrid(appId, spaceId, data.GridId)
-				close(data.Cb)
-			default:
-				log.Infof("space_server handle unknow msg")
-			}
+			handleSpaceMsg(appId, spaceId, data)
 		case <-space.Die:
 			return
 		case <-GlobalDie:
 			return
 		}
+	}
+}
+
+func handleSpaceMsg(appId, spaceId string, m *InnerMsg) {
+	defer util.RecoverPanic()
+	log.Infof("handle space msg:%v", m)
+	switch m.Id {
+	case IMSG_START_GRID:
+		StartGrid(appId, spaceId, m.GridId)
+		close(m.Cb)
+	default:
+		log.Infof("space_server handle unknow msg")
 	}
 }
 

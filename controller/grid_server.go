@@ -6,6 +6,7 @@ import (
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
+	"jhqc.com/songcf/scene/util"
 )
 
 func Msg2Grid(appId, spaceId, gridId string, gridMsg *GridMsg) {
@@ -33,6 +34,7 @@ func StartGrid(appId, spaceId, gridId string) *Grid {
 }
 
 func gridServe(appId, spaceId, gridId string, ch chan struct{}) {
+	defer util.RecoverPanic()
 	alreadyGrid := GetGrid(appId, spaceId, gridId)
 	if alreadyGrid != nil {
 		log.Infof("grid server[%v:%v:%v] already exist.", appId, spaceId, gridId)
@@ -65,30 +67,34 @@ func gridServe(appId, spaceId, gridId string, ch chan struct{}) {
 			if !ok {
 				return
 			}
-			log.Infof("handle grid msg:%v", m)
-
-			switch m.Cmd {
-			case pb.CmdJoinReq:
-				p := m.Msg.(*pb.JoinReq)
-				join(appId, spaceId, gridId, m.Uid, p)
-			case pb.CmdLeaveReq:
-				_ = m.Msg.(*pb.LeaveReq)
-				uInfo := m.ExData.(*UserInfo)
-				leave(appId, spaceId, gridId, m.Uid, uInfo)
-			case pb.CmdMoveReq:
-				p := m.Msg.(*pb.MoveReq)
-				move(appId, spaceId, gridId, m.Uid, p)
-			case pb.CmdBroadcastReq:
-				p := m.Msg.(*pb.BroadcastReq)
-				broadcast(appId, spaceId, gridId, m.Uid, p)
-			default:
-				log.Warnf("unknow grid msg id = %d", m.Cmd)
-			}
+			handlerGridMsg(appId, spaceId, gridId, m)
 		case <-grid.Die:
 			return
 		case <-GlobalDie:
 			return
 		}
+	}
+}
+
+func handlerGridMsg(appId, spaceId, gridId string, m *GridMsg) {
+	defer util.RecoverPanic()
+	log.Infof("handle grid msg:%v", m)
+	switch m.Cmd {
+	case pb.CmdJoinReq:
+		p := m.Msg.(*pb.JoinReq)
+		join(appId, spaceId, gridId, m.Uid, p)
+	case pb.CmdLeaveReq:
+		_ = m.Msg.(*pb.LeaveReq)
+		uInfo := m.ExData.(*UserInfo)
+		leave(appId, spaceId, gridId, m.Uid, uInfo)
+	case pb.CmdMoveReq:
+		p := m.Msg.(*pb.MoveReq)
+		move(appId, spaceId, gridId, m.Uid, p)
+	case pb.CmdBroadcastReq:
+		p := m.Msg.(*pb.BroadcastReq)
+		broadcast(appId, spaceId, gridId, m.Uid, p)
+	default:
+		log.Warnf("unknow grid msg id = %d", m.Cmd)
 	}
 }
 

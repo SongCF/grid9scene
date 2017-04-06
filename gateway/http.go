@@ -27,6 +27,7 @@ func HttpServer() {
 
 //"http://127.0.0.1:9911/api/v1/app/1?user_id=1&token=abc123"
 func handleCreateApp(w http.ResponseWriter, r *http.Request) {
+	defer RecoverPanic()
 	vars := mux.Vars(r)
 	appId := vars["aid"]
 	eInfo := CreateApp(appId, "test", "test")
@@ -42,6 +43,7 @@ func handleCreateApp(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
+	defer RecoverPanic()
 	vars := mux.Vars(r)
 	appId := vars["aid"]
 	eInfo := DeleteApp(appId)
@@ -58,6 +60,7 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 
 //"http://127.0.0.1:9911/api/v1/app/1/space/1?user_id=1&token=abc123&grid_width=10&grid_height=10"
 func handleCreateSpace(w http.ResponseWriter, r *http.Request) {
+	defer RecoverPanic()
 	vars := mux.Vars(r)
 	appId := vars["aid"]
 	spaceId := vars["sid"]
@@ -82,6 +85,7 @@ func handleCreateSpace(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteSpace(w http.ResponseWriter, r *http.Request) {
+	defer RecoverPanic()
 	vars := mux.Vars(r)
 	appId := vars["aid"]
 	spaceId := vars["sid"]
@@ -99,6 +103,7 @@ func handleDeleteSpace(w http.ResponseWriter, r *http.Request) {
 
 //"http://127.0.0.1:9911/api/v1/app/1/user/1/pos?user_id=1&token=abc123"
 func handleQueryPos(w http.ResponseWriter, r *http.Request) {
+	defer RecoverPanic()
 	vars := mux.Vars(r)
 	appId := vars["aid"]
 	queryUidStr := vars["uid"]

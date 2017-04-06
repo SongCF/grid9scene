@@ -12,6 +12,8 @@ import (
 func sender(s *Session) {
 	defer log.Debug("---session sender end.")
 	defer GlobalWG.Done()
+	defer RecoverPanic()
+	defer s.Close()
 	defer s.Conn.Close()
 
 	writeBuf := make([]byte, WriteBufSize)
