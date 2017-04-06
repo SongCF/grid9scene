@@ -6,26 +6,24 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-
 type Grid struct {
-	GridId string      // "x,y"
-	UidM map[int32]bool  // grid uid list
-	MsgBox chan *GridMsg `json:"-"`// message box
-	Die chan struct{} `json:"-"`
+	GridId string         // "x,y"
+	UidM   map[int32]bool // grid uid list
+	MsgBox chan *GridMsg  `json:"-"` // message box
+	Die    chan struct{}  `json:"-"`
 }
 
 type GridMsg struct {
-	Uid int32    //req uid
-	Cmd int32    //req cmd
-	Msg proto.Message
+	Uid    int32 //req uid
+	Cmd    int32 //req cmd
+	Msg    proto.Message
 	ExData interface{}
 }
-
 
 func (g *Grid) PostMsg(m *GridMsg) {
 	if g != nil && m != nil {
 		select {
-		case <- g.Die:
+		case <-g.Die:
 		case g.MsgBox <- m:
 		}
 	}
@@ -33,14 +31,12 @@ func (g *Grid) PostMsg(m *GridMsg) {
 func (g *Grid) Close() {
 	if g != nil {
 		select {
-		case <- g.Die:
+		case <-g.Die:
 		default:
 			close(g.Die)
 		}
 	}
 }
-
-
 
 func CalcGridId(posX, posY, w, h float32) string {
 	x := int32(posX / w)

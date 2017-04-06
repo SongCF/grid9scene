@@ -1,13 +1,12 @@
 package global
 
 import (
-	"sync"
+	log "github.com/Sirupsen/logrus"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
-	log "github.com/Sirupsen/logrus"
 )
-
 
 var (
 	GlobalWG sync.WaitGroup
@@ -19,7 +18,7 @@ func HandleSignal() {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM)
 	for {
-		msg := <- ch
+		msg := <-ch
 		switch msg {
 		case syscall.SIGTERM:
 			close(GlobalDie)

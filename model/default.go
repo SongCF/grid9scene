@@ -1,12 +1,9 @@
 package model
 
-
-
 // reason of kick out
 const (
 	OFFLINE_TYPE_OTHER_LOGIN = int32(1)
 )
-
 
 // grid
 const (

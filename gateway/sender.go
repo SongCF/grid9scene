@@ -1,12 +1,12 @@
 package gateway
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"net"
 	"encoding/binary"
+	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
+	"net"
 )
 
 func sender(s *Session) {
@@ -17,14 +17,14 @@ func sender(s *Session) {
 	writeBuf := make([]byte, WriteBufSize)
 	for {
 		select {
-		case data, ok := <- s.ChanOut:
+		case data, ok := <-s.ChanOut:
 			if !ok {
 				return
 			}
 			sendData(s.Conn, data, writeBuf)
-		case <- s.Die:
+		case <-s.Die:
 			return
-		case <- GlobalDie:
+		case <-GlobalDie:
 			return
 		}
 	}

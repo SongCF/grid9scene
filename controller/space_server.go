@@ -1,11 +1,11 @@
 package controller
 
 import (
-	. "jhqc.com/songcf/scene/model"
+	"database/sql"
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
-	"database/sql"
 )
 
 func Msg2SpaceWait(appId, spaceId string, imsg int32, gridId string) {
@@ -20,25 +20,22 @@ func Msg2SpaceWait(appId, spaceId string, imsg int32, gridId string) {
 	}
 	cb := make(chan struct{})
 	msg := &InnerMsg{
-		Id: imsg,
-		Cb: cb,
+		Id:     imsg,
+		Cb:     cb,
 		GridId: gridId,
 	}
 	space.PostMsg(msg)
-	<- cb //waiting close cb
+	<-cb //waiting close cb
 }
-
 
 // unsafe multi goruntine
 func StartSpace(appId, spaceId string) *Space {
 	ch := make(chan struct{})
 	go spaceServe(appId, spaceId, ch)
-	<- ch
+	<-ch
 	space := GetSpace(appId, spaceId)
 	return space
 }
-
-
 
 func spaceServe(appId, spaceId string, ch chan struct{}) {
 	// check already started.
@@ -73,19 +70,19 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 
 	//cache
 	space := &Space{
-		SpaceId: spaceId,
-		GridWidth: w,
+		SpaceId:    spaceId,
+		GridWidth:  w,
 		GridHeight: h,
-		GridM: make(map[string]*Grid),
-		MsgBox: make(chan *InnerMsg),
-		Die: make(chan struct{}),
+		GridM:      make(map[string]*Grid),
+		MsgBox:     make(chan *InnerMsg),
+		Die:        make(chan struct{}),
 	}
 	app.SpaceM[spaceId] = space
 	defer func() {
 		//delete cache
 		if app, ok := AppL[appId]; ok {
 			if space != nil {
-				for _,grid := range space.GridM {
+				for _, grid := range space.GridM {
 					grid.Close()
 				}
 			}
@@ -99,7 +96,7 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 	// loop
 	for {
 		select {
-		case data, ok := <- space.MsgBox:
+		case data, ok := <-space.MsgBox:
 			if !ok {
 				return
 			}
@@ -111,15 +108,13 @@ func spaceServe(appId, spaceId string, ch chan struct{}) {
 			default:
 				log.Infof("space_server handle unknow msg")
 			}
-		case <- space.Die:
+		case <-space.Die:
 			return
-		case <- GlobalDie:
+		case <-GlobalDie:
 			return
 		}
 	}
 }
-
-
 
 func CreateSpace(appId, spaceId string, gridWidth, gridHeight float32) *pb.ErrInfo {
 	//already exist
@@ -162,7 +157,7 @@ func DeleteSpace(appId, spaceId string) *pb.ErrInfo {
 	//delete cache, close server
 	space := GetSpace(appId, spaceId)
 	if space != nil {
-		for _,grid := range space.GridM {
+		for _, grid := range space.GridM {
 			grid.Close()
 		}
 	}
@@ -177,4 +172,3 @@ func LoadSpace(appId, spaceId string) *Space {
 	}
 	return GetSpace(appId, spaceId)
 }
-

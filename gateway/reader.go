@@ -1,14 +1,14 @@
 package gateway
 
 import (
+	"encoding/binary"
 	log "github.com/Sirupsen/logrus"
-	"time"
 	"io"
-	"net"
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
-	"encoding/binary"
+	"net"
+	"time"
 )
 
 func handleClient(conn net.Conn) {
@@ -62,11 +62,10 @@ func handleClient(conn net.Conn) {
 
 		select {
 		case in <- readBuf[:size]:
-		case <- s.Die:
+		case <-s.Die:
 			return
-		case <- GlobalDie:
+		case <-GlobalDie:
 			return
 		}
 	}
 }
-

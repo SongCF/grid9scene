@@ -1,24 +1,22 @@
 package controller
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/model"
-	log "github.com/Sirupsen/logrus"
 	"jhqc.com/songcf/scene/pb"
 )
 
-
 //define this func by yourself
-var Handlers = map[int32]func(*Session, []byte) (int32, proto.Message) {
-	10020:   LoginReq,                // 用于登录服务器 验证
-	20010:   JoinReq,                 // 加入场景请求
-	20020:   LeaveReq,                // 离开场景请求
-	20030:   MoveReq,                 // 场景移动请求
-	20040:   BroadcastReq,            // 场景广播请求
-	20050:   QueryPosReq,             // 查询位置请求
-	20061:   HeartbeatReq,            // 系统预留，用于表示心跳
+var Handlers = map[int32]func(*Session, []byte) (int32, proto.Message){
+	10020: LoginReq,     // 用于登录服务器 验证
+	20010: JoinReq,      // 加入场景请求
+	20020: LeaveReq,     // 离开场景请求
+	20030: MoveReq,      // 场景移动请求
+	20040: BroadcastReq, // 场景广播请求
+	20050: QueryPosReq,  // 查询位置请求
+	20061: HeartbeatReq, // 系统预留，用于表示心跳
 }
-
 
 //user login
 func LoginReq(s *Session, m []byte) (int32, proto.Message) {
@@ -39,7 +37,7 @@ func LoginReq(s *Session, m []byte) (int32, proto.Message) {
 	oldSess := GetSession(string(payload.AppId), payload.GetUserId())
 	if oldSess != nil {
 		t := OFFLINE_TYPE_OTHER_LOGIN
-		offlineMsg := & pb.OfflineNtf{
+		offlineMsg := &pb.OfflineNtf{
 			Type: &t,
 		}
 		oldSess.Rsp(pb.CmdOfflineNtf, offlineMsg)
@@ -156,9 +154,9 @@ func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
 			//leave current space_id
 			payload.SpaceId = []byte(s.UData.SpaceId)
 			gridMsg := &GridMsg{
-				Uid: s.Uid,
-				Cmd: pb.CmdLeaveReq,
-				Msg: payload,
+				Uid:    s.Uid,
+				Cmd:    pb.CmdLeaveReq,
+				Msg:    payload,
 				ExData: s.UData,
 			}
 			Msg2Grid(s.AppId, s.UData.SpaceId, s.UData.GridId, gridMsg)
@@ -235,9 +233,9 @@ func QueryPosReq(s *Session, m []byte) (int32, proto.Message) {
 	}
 	ack := &pb.QueryPosAck{
 		SpaceId: []byte(tarSess.UData.SpaceId),
-		PosX: &tarSess.UData.PosX,
-		PosY: &tarSess.UData.PosY,
-		Angle: &tarSess.UData.Angle,
+		PosX:    &tarSess.UData.PosX,
+		PosY:    &tarSess.UData.PosY,
+		Angle:   &tarSess.UData.Angle,
 	}
 	return pb.CmdQueryPosAck, ack
 }

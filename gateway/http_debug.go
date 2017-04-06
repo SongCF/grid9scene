@@ -1,14 +1,14 @@
 package gateway
 
 import (
+	"encoding/json"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"net/http"
-	_ "net/http/pprof"
 	"github.com/gorilla/mux"
 	. "jhqc.com/songcf/scene/model"
-	"encoding/json"
 	. "jhqc.com/songcf/scene/util"
-	"fmt"
+	"net/http"
+	_ "net/http/pprof"
 )
 
 func StartPProf() {
@@ -16,7 +16,6 @@ func StartPProf() {
 	log.Println("pprof listening on: ", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
-
 
 func StartStats() {
 	addr := Conf.Get(SCT_HTTP, "stat")

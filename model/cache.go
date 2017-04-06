@@ -1,20 +1,14 @@
 package model
 
-
 import (
 	log "github.com/Sirupsen/logrus"
 )
-
-
-
 
 // mem cache
 
 var (
 	AppL = make(map[string]*App)
 )
-
-
 
 func GetGrid(appId, spaceId, gridId string) *Grid {
 	if app, ok := AppL[appId]; ok {

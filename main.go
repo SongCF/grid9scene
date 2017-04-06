@@ -2,15 +2,13 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/controller"
 	. "jhqc.com/songcf/scene/gateway"
+	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
-	. "jhqc.com/songcf/scene/controller"
 	"os"
 )
-
-
 
 func main() {
 	log.SetLevel(log.DebugLevel)
@@ -19,7 +17,6 @@ func main() {
 	wd, err := os.Getwd()
 	CheckError(err)
 	log.Println("work dir: ", wd)
-
 
 	go HandleSignal()
 
@@ -36,12 +33,10 @@ func main() {
 	go StartPProf()
 	go StartStats()
 
-
 	initZK()
 
 	select {}
 }
-
 
 func loadAppTbl() {
 	rows, err := DB.Query("SELECT app_id FROM app;")
@@ -55,7 +50,6 @@ func loadAppTbl() {
 		StartApp(appId)
 	}
 }
-
 
 func initZK() {
 	// TODO zookeeper

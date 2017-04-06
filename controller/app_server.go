@@ -1,15 +1,13 @@
 package controller
 
 import (
-	. "jhqc.com/songcf/scene/model"
+	"database/sql"
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
-	"sync"
+	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
-	"database/sql"
+	"sync"
 )
-
-
 
 func Msg2AppWait(appId string, imsg int32, spaceId string) {
 	app := GetApp(appId)
@@ -17,26 +15,26 @@ func Msg2AppWait(appId string, imsg int32, spaceId string) {
 		app = StartApp(appId)
 	}
 	if app == nil {
-		log.Infof("not found app[%v], ignore msg[%v]", appId, imsg)
+		log.Errorf("not found app[%v], ignore msg[%v]", appId, imsg)
 		return
 	}
 	cb := make(chan struct{})
 	msg := &InnerMsg{
-		Id: imsg,
-		Cb: cb,
+		Id:      imsg,
+		Cb:      cb,
 		SpaceId: spaceId,
 	}
 	app.PostMsg(msg)
-	<- cb //waiting close cb
+	<-cb //waiting close cb
 }
 
-
 var mutex *sync.Mutex = new(sync.Mutex)
+
 func StartApp(appId string) *App {
 	mutex.Lock() //http可能会多个一起请求，避免创建同一app多次
 	ch := make(chan struct{})
 	go appServe(appId, ch)
-	<- ch
+	<-ch
 	mutex.Unlock()
 	app := GetApp(appId)
 	return app
@@ -67,22 +65,22 @@ func appServe(appId string, ch chan struct{}) {
 
 	//cache
 	app := &App{
-		SpaceM: make(map[string]*Space),
+		SpaceM:   make(map[string]*Space),
 		SessionM: make(map[int32]*Session),
-		MsgBox: make(chan *InnerMsg),
-		Die: make(chan struct{}),
+		MsgBox:   make(chan *InnerMsg),
+		Die:      make(chan struct{}),
 	}
 	AppL[appId] = app
 	defer func() {
 		//delete cache
 		if app != nil {
 			//delete user session
-			for _,s := range app.SessionM {
+			for _, s := range app.SessionM {
 				s.Close()
 			}
 			//delete cache, close server
-			for _,space := range app.SpaceM {
-				for _,grid := range space.GridM {
+			for _, space := range app.SpaceM {
+				for _, grid := range space.GridM {
 					grid.Close()
 				}
 				space.Close()
@@ -97,7 +95,7 @@ func appServe(appId string, ch chan struct{}) {
 	// loop
 	for {
 		select {
-		case data, ok := <- app.MsgBox:
+		case data, ok := <-app.MsgBox:
 			if !ok {
 				return
 			}
@@ -109,17 +107,13 @@ func appServe(appId string, ch chan struct{}) {
 			default:
 				log.Infof("app_server handle unknow msg:%v", data.Id)
 			}
-		case <- app.Die:
+		case <-app.Die:
 			return
-		case <- GlobalDie:
+		case <-GlobalDie:
 			return
 		}
 	}
 }
-
-
-
-
 
 func CreateApp(appId, name, key string) *pb.ErrInfo {
 	//already exist
@@ -159,12 +153,12 @@ func DeleteApp(appId string) *pb.ErrInfo {
 	app := GetApp(appId)
 	if app != nil {
 		//delete user session
-		for _,s := range app.SessionM {
+		for _, s := range app.SessionM {
 			s.Close()
 		}
 		//delete cache, close server
-		for _,space := range app.SpaceM {
-			for _,grid := range space.GridM {
+		for _, space := range app.SpaceM {
+			for _, grid := range space.GridM {
 				grid.Close()
 			}
 			space.Close()
@@ -173,4 +167,3 @@ func DeleteApp(appId string) *pb.ErrInfo {
 	app.Close()
 	return nil
 }
-

@@ -1,15 +1,14 @@
 package gateway
 
 import (
-	"time"
 	log "github.com/Sirupsen/logrus"
+	"github.com/golang/protobuf/proto"
+	. "jhqc.com/songcf/scene/controller"
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
-	"github.com/golang/protobuf/proto"
-	. "jhqc.com/songcf/scene/controller"
+	"time"
 )
-
 
 func agent(s *Session, in chan []byte) {
 	defer log.Debug("---session agent end.")
@@ -17,7 +16,7 @@ func agent(s *Session, in chan []byte) {
 	minTimer := time.After(time.Minute)
 	for {
 		select {
-		case msg, ok := <- in:
+		case msg, ok := <-in:
 			if !ok {
 				return
 			}
@@ -25,18 +24,16 @@ func agent(s *Session, in chan []byte) {
 			log.Infof("req packCount:%v", s.PacketCount)
 			cmd, payload := handleMsg(s, msg)
 			s.Rsp(cmd, payload)
-		case <- minTimer:
+		case <-minTimer:
 			timeWork()
 			minTimer = time.After(time.Minute)
-		case <- s.Die:
+		case <-s.Die:
 			return
-		case <- GlobalDie:
+		case <-GlobalDie:
 			return
 		}
 	}
 }
-
-
 
 func handleMsg(s *Session, m []byte) (int32, proto.Message) {
 	if s == nil {

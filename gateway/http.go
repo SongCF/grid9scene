@@ -1,24 +1,22 @@
 package gateway
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
-	log "github.com/Sirupsen/logrus"
-	. "jhqc.com/songcf/scene/controller"
 	"encoding/json"
+	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
+	. "jhqc.com/songcf/scene/controller"
 	"jhqc.com/songcf/scene/pb"
-	"strconv"
 	. "jhqc.com/songcf/scene/util"
+	"net/http"
+	"strconv"
 )
 
-
 type userPos struct {
-	SpaceId string `json:"space_id"`
-	PosX float32 `json:"pos_x"`
-	PosY float32 `json:"pos_y"`
-	Angle float32 `json:"angle"`
+	SpaceId string  `json:"space_id"`
+	PosX    float32 `json:"pos_x"`
+	PosY    float32 `json:"pos_y"`
+	Angle   float32 `json:"angle"`
 }
-
 
 func HttpServer() {
 	addr := Conf.Get(SCT_HTTP, "http_server")
@@ -32,7 +30,6 @@ func HttpServer() {
 	log.Println("http server listening on: ", addr)
 	log.Fatal(http.ListenAndServe(addr, r))
 }
-
 
 //"http://127.0.0.1:9911/api/v1/app/1?user_id=1&token=abc123"
 func handleCreateApp(w http.ResponseWriter, r *http.Request) {

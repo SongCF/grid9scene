@@ -1,16 +1,15 @@
 package model
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"database/sql"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	. "jhqc.com/songcf/scene/util"
 	"strings"
-	"fmt"
 )
 
 var DB *sql.DB
-
 
 func InitDB() {
 	vL := Conf.Gets(SCT_DB, []string{"user", "pw", "host", "port", "db"})

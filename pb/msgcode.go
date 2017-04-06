@@ -78,5 +78,3 @@ const (
 	CmdHeartbeatReq = 20061 // 系统预留，用于表示心跳
 	CmdHeartbeatAck = 20062 // 心跳回复包
 )
-
-

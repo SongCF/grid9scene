@@ -1,35 +1,31 @@
 package util
 
 import (
-	. "github.com/Unknwon/goconfig"
 	log "github.com/Sirupsen/logrus"
-	"time"
+	. "github.com/Unknwon/goconfig"
 	"strconv"
+	"time"
 )
-
 
 var confFile = "conf.ini"
 var Conf *Config = nil
 
 // will change by config file when start app
 var (
-	ReadBufSize = 2048
-	WriteBufSize = 2048
+	ReadBufSize                = 2048
+	WriteBufSize               = 2048
 	ReadDeadline time.Duration = 120 //second
 )
 
-
 const (
-	SCT_DB = "db"
+	SCT_DB   = "db"
 	SCT_HTTP = "http"
-	SCT_TCP = "tcp"
+	SCT_TCP  = "tcp"
 )
-
 
 type Config struct {
 	c *ConfigFile
 }
-
 
 func (c *Config) GetInt(section, key string) int {
 	val := c.Get(section, key)
@@ -51,17 +47,16 @@ func (c *Config) Get(section, key string) string {
 }
 func (c *Config) Gets(section string, keys []string) []string {
 	ret := make([]string, len(keys))
-	for i,k := range keys {
+	for i, k := range keys {
 		ret[i] = c.Get(section, k)
 	}
 	return ret
 }
 
-
 func InitConf() {
 	c, err := LoadConfigFile(confFile)
 	CheckError(err)
-	Conf = &Config{c:c}
+	Conf = &Config{c: c}
 
 	//
 	loadTcpConfig()

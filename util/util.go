@@ -1,10 +1,9 @@
 package util
 
 import (
-	"os"
 	log "github.com/Sirupsen/logrus"
+	"os"
 )
-
 
 func CheckError(err error) {
 	if err != nil {

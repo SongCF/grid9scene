@@ -1,12 +1,11 @@
 package gateway
 
 import (
-	"net"
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/util"
+	"net"
 )
-
 
 func TcpServer() {
 	tcpAddr := Conf.Get(SCT_TCP, "tcp_server")
@@ -34,7 +33,7 @@ func TcpServer() {
 
 		// check server close signal
 		select {
-		case <- GlobalDie:
+		case <-GlobalDie:
 			listener.Close()
 			return
 		default:

@@ -2,13 +2,11 @@ package controller
 
 import (
 	log "github.com/Sirupsen/logrus"
+	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
-	"github.com/golang/protobuf/proto"
 	"jhqc.com/songcf/scene/pb"
 )
-
-
 
 func Msg2Grid(appId, spaceId, gridId string, gridMsg *GridMsg) {
 	grid := GetGrid(appId, spaceId, gridId)
@@ -29,7 +27,7 @@ func Msg2Grid(appId, spaceId, gridId string, gridMsg *GridMsg) {
 func StartGrid(appId, spaceId, gridId string) *Grid {
 	ch := make(chan struct{})
 	go gridServe(appId, spaceId, gridId, ch)
-	<- ch
+	<-ch
 	grid := GetGrid(appId, spaceId, gridId)
 	return grid
 }
@@ -44,9 +42,9 @@ func gridServe(appId, spaceId, gridId string, ch chan struct{}) {
 
 	grid := &Grid{
 		GridId: gridId,
-		UidM: make(map[int32]bool),
+		UidM:   make(map[int32]bool),
 		MsgBox: make(chan *GridMsg),
-		Die: make(chan struct{}),
+		Die:    make(chan struct{}),
 	}
 	SetGrid(appId, spaceId, gridId, grid)
 	defer func() {
@@ -63,7 +61,7 @@ func gridServe(appId, spaceId, gridId string, ch chan struct{}) {
 	// loop
 	for {
 		select {
-		case m, ok := <- grid.MsgBox:
+		case m, ok := <-grid.MsgBox:
 			if !ok {
 				return
 			}
@@ -86,15 +84,13 @@ func gridServe(appId, spaceId, gridId string, ch chan struct{}) {
 			default:
 				log.Warnf("unknow grid msg id = %d", m.Cmd)
 			}
-		case <- grid.Die:
+		case <-grid.Die:
 			return
-		case <- GlobalDie:
+		case <-GlobalDie:
 			return
 		}
 	}
 }
-
-
 
 func join(appId, spaceId, gridId string, uid int32, req *pb.JoinReq) {
 	s := GetSession(appId, uid)
@@ -127,9 +123,9 @@ func join(appId, spaceId, gridId string, uid int32, req *pb.JoinReq) {
 	ntf := &pb.JoinNtf{
 		User: &pb.UserData{
 			UserId: &uid,
-			PosX: &s.UData.PosX,
-			PosY: &s.UData.PosY,
-			Angle: &s.UData.Angle,
+			PosX:   &s.UData.PosX,
+			PosY:   &s.UData.PosY,
+			Angle:  &s.UData.Angle,
 			ExData: s.UData.ExData,
 		},
 	}
@@ -224,17 +220,17 @@ func move(appId, spaceId, gridId string, uid int32, req *pb.MoveReq) {
 	dstGrid.UidM[uid] = true
 	//ack
 	ack := &pb.MoveAck{
-		PosX: &s.UData.PosX,
-		PosY: &s.UData.PosY,
+		PosX:  &s.UData.PosX,
+		PosY:  &s.UData.PosY,
 		Angle: &s.UData.Angle,
 	}
 	s.Rsp(pb.CmdMoveAck, ack)
 	//cast
 	ntf := &pb.MoveNtf{
 		UserId: &uid,
-		PosX: &s.UData.PosX,
-		PosY: &s.UData.PosY,
-		Angle: &s.UData.Angle,
+		PosX:   &s.UData.PosX,
+		PosY:   &s.UData.PosY,
+		Angle:  &s.UData.Angle,
 	}
 	cast9grid(appId, spaceId, gridId, pb.CmdMoveNtf, ntf, uid)
 
@@ -251,16 +247,16 @@ func move(appId, spaceId, gridId string, uid int32, req *pb.MoveReq) {
 		joinNtf := &pb.JoinNtf{
 			User: &pb.UserData{
 				UserId: &uid,
-				PosX: &s.UData.PosX,
-				PosY: &s.UData.PosY,
-				Angle: &s.UData.Angle,
+				PosX:   &s.UData.PosX,
+				PosY:   &s.UData.PosY,
+				Angle:  &s.UData.Angle,
 				ExData: s.UData.ExData,
 			},
 		}
 		castGrids(appId, spaceId, joinGrids, pb.CmdJoinNtf, joinNtf, uid)
 		// ntf user list
 		ul := []*pb.UserData{}
-		for _,joinGid := range (*joinGrids) {
+		for _, joinGid := range *joinGrids {
 			joinG := GetGrid(appId, spaceId, joinGid)
 			if joinG != nil {
 				for joinUid := range joinG.UidM {
@@ -268,9 +264,9 @@ func move(appId, spaceId, gridId string, uid int32, req *pb.MoveReq) {
 					if joinS != nil {
 						u := &pb.UserData{
 							UserId: &joinUid,
-							PosX: &joinS.UData.PosX,
-							PosY: &joinS.UData.PosY,
-							Angle: &joinS.UData.Angle,
+							PosX:   &joinS.UData.PosX,
+							PosY:   &joinS.UData.PosY,
+							Angle:  &joinS.UData.Angle,
 							ExData: joinS.UData.ExData,
 						}
 						ul = append(ul, u)
@@ -295,17 +291,14 @@ func broadcast(appId, spaceId, gridId string, uid int32, req *pb.BroadcastReq) {
 	//cast
 	ntf := &pb.BroadcastNtf{
 		UserId: &uid,
-		Data: req.GetData(),
+		Data:   req.GetData(),
 	}
 	cast9grid(appId, spaceId, gridId, pb.CmdBroadcastNtf, ntf, uid)
 }
 
-
-
 //=============================
 //inner func
 //=============================
-
 
 //广播9个格子
 func cast9grid(appId, spaceId, gridId string, cmd int32, ntf proto.Message, self int32) {
@@ -314,7 +307,7 @@ func cast9grid(appId, spaceId, gridId string, cmd int32, ntf proto.Message, self
 }
 
 func castGrids(appId, spaceId string, gridIdL *[]string, cmd int32, ntf proto.Message, self int32) {
-	for i := 0; i < len(*gridIdL); i ++ {
+	for i := 0; i < len(*gridIdL); i++ {
 		grid := GetGrid(appId, spaceId, (*gridIdL)[i])
 		if grid != nil {
 			for uid := range grid.UidM {
