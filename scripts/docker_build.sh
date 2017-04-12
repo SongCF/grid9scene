@@ -10,9 +10,8 @@ docker run --rm \
            -v $(pwd):/go/src/jhqc.com/songcf/scene/ \
            -w /go/src/jhqc.com/songcf/scene/ \
            139.198.2.55/soalib/golang:1.8 \
-           /bin/bash -c "./gopack get-deps && go build -o scene && echo "build success"
+           /bin/bash -c "./gopack get-deps && go build -o scene && echo \"build success\""
 
 
 docker rmi scene:v1 --force
 docker build -t="scene:v1" .
-
