@@ -33,7 +33,7 @@ s:
 
 # 构建数据库
 db:
-	/bin/bash db/db.sh
+	/bin/bash scripts/db.sh
 
 
 
