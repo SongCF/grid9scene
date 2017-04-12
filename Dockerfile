@@ -10,7 +10,7 @@ EXPOSE 9913
 ENV WORKDIR ~
 
 
-COPY $./scene $WORKDIR/scene
+COPY ./scene $WORKDIR/scene
 COPY ./conf.ini $WORKDIR/conf.ini
 
 CMD ["./scene"]
