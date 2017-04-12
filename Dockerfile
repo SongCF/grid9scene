@@ -7,10 +7,10 @@ EXPOSE 9911
 EXPOSE 9912
 EXPOSE 9913
 
-ENV WORKDIR ~
+ENV WORKDIR /go/bin
 
 
 COPY ./scene $WORKDIR/scene
 COPY ./conf.ini $WORKDIR/conf.ini
 
-CMD ["./scene"]
+CMD ["/go/bin/scene"]
