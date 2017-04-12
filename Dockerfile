@@ -10,8 +10,7 @@ EXPOSE 9913
 ENV WORKDIR ~
 
 
-COPY $GOPATH/bin/scene $WORKDIR/scene
+COPY $./scene $WORKDIR/scene
 COPY ./conf.ini $WORKDIR/conf.ini
-COPY ./scripts/boot.sh $WORKDIR/boot.sh
 
-CMD ["/bin/bash", "boot.sh"]
+CMD ["./scene"]

@@ -11,8 +11,11 @@ deps:
 
 
 # 清除
-clean:
+clean-deps:
 	rm -rf vendor;rm -rf .gopack
+
+clean:
+	rm -rf ./scene
 
 
 # 生成协议.
@@ -41,6 +44,6 @@ docker:
 
 
 
-.PHONY:deps clean pb s db docker
+.PHONY:deps clean clean-deps pb s db docker
 
 
