@@ -1,5 +1,5 @@
 
-GOPACK = "./gp"
+GOPACK = "./gopack"
 
 # 所有
 all: deps
