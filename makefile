@@ -1,5 +1,9 @@
-
 GOPACK = "./gopack"
+
+ifeq ("$(shell uname -o)", "Cygwin")
+  GOPACK = "./gopack-win"
+endif
+
 
 # 所有
 all: deps
