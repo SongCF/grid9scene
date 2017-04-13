@@ -12,13 +12,13 @@ import (
 )
 
 func StartPProf() {
-	addr := Conf.Get(SCT_HTTP, "pprof")
+	addr := Conf.Get(SCT_HTTP, "pprof_server")
 	log.Println("pprof listening on: ", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
 func StartStats() {
-	addr := Conf.Get(SCT_HTTP, "stat")
+	addr := Conf.Get(SCT_HTTP, "stat_server")
 	r := mux.NewRouter()
 	r.HandleFunc("/stat/{type}", handleStat).Methods("GET")
 	//r.StrictSlash(true)

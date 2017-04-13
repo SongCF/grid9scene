@@ -13,5 +13,5 @@ docker run --rm \
            /bin/bash -c "./gopack get-deps && go build -o scene && echo \"build success\""
 
 
-docker rmi scene:v1 --force
-docker build -t="scene:v1" .
+docker rmi scene:build --force
+docker build -t="scene:build" .
