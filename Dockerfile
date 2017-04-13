@@ -14,4 +14,4 @@ COPY ./scene $BIN/scene
 COPY ./conf.ini $BIN/conf.ini
 COPY ./scripts/docker_boot.sh $BIN/docker_boot.sh
 
-CMD ["bin/bash", "docker_boot.sh"]
+CMD ["/bin/bash", "./docker_boot.sh"]

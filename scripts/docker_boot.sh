@@ -11,4 +11,5 @@ sed -i "s/\(zk_auth = \).*/\1$ZK_AUTH/g" $SYS_CONFIG
 sed -i "s/\(zk_reg_tcp_addr = \).*/\1$ZK_REG_HTTP/g" $SYS_CONFIG
 sed -i "s/\(zk_reg_http_addr = \).*/\1$ZK_REG_HTTP/g" $SYS_CONFIG
 
+chmod +x scene
 ./scene

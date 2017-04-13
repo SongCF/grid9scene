@@ -1,6 +1,5 @@
 #!/bin/bash
 
-git checkout .
 make clean
 # make clean-deps
 
