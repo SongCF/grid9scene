@@ -3,7 +3,6 @@ package util
 import (
 	log "github.com/Sirupsen/logrus"
 	. "github.com/Unknwon/goconfig"
-	"strconv"
 	"time"
 )
 
@@ -21,6 +20,7 @@ const (
 	SCT_DB   = "db"
 	SCT_HTTP = "http"
 	SCT_TCP  = "tcp"
+	SCT_ZK = "zookeeper"
 )
 
 type Config struct {
@@ -28,19 +28,18 @@ type Config struct {
 }
 
 func (c *Config) GetInt(section, key string) int {
-	val := c.Get(section, key)
-	i, err := strconv.Atoi(val)
+	val, err := c.c.Int(section, key)
 	if err != nil {
-		log.Errorf("config get int error: key=%s, val=%s, err=%v", key, val, err)
+		log.Errorf("config get int error: key=[%v]%s, val=%s, err=%v", section, key, val, err)
 		return 0
 	}
-	return i
+	return val
 }
 func (c *Config) Get(section, key string) string {
 	// GetValue
 	value, err := c.c.GetValue(section, key)
 	if err != nil {
-		log.Errorf("Error when get config value, err = %v", err)
+		log.Errorf("Error when get config value([%v]%v), err = %v", section, key, err)
 		return ""
 	}
 	return value
@@ -67,5 +66,5 @@ func loadTcpConfig() {
 	ReadBufSize = Conf.GetInt(SCT_TCP, "read_buf")
 	WriteBufSize = Conf.GetInt(SCT_TCP, "write_buf")
 	//deadline
-	ReadDeadline = time.Duration(Conf.GetInt(SCT_TCP, "deadline_time"))
+	ReadDeadline = time.Duration(Conf.GetInt(SCT_TCP, "deadline_time")) * time.Second
 }

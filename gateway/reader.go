@@ -44,8 +44,7 @@ func handleClient(conn net.Conn) {
 	//reader
 	readBuf := make([]byte, ReadBufSize)
 	for {
-		readDeadline := ReadDeadline * time.Second
-		conn.SetReadDeadline(time.Now().Add(readDeadline))
+		conn.SetReadDeadline(time.Now().Add(ReadDeadline))
 
 		n, err := io.ReadAtLeast(conn, readBuf[:4], 4)
 		if err != nil {

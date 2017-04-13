@@ -54,5 +54,7 @@ func loadAppTbl() {
 }
 
 func initZK() {
-	// TODO zookeeper
+	Register()
+	GetServices("tcp")
+	GetServices("http")
 }

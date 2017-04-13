@@ -1,7 +1,7 @@
 
-DROP DATABASE IF EXISTS db_scene;
-CREATE DATABASE db_scene;
-USE db_scene;
+DROP DATABASE IF EXISTS db_scene_go;
+CREATE DATABASE db_scene_go;
+USE db_scene_go;
 
 
 -- app表：记录接入的第三方app信息
