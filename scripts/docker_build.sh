@@ -8,8 +8,8 @@ docker pull 139.198.2.55/soalib/golang:1.8
 
 # 成功build后输出build success
 # 失败后输出build failed，并exit 1
-docker stop build_scene || echo ""
-docker rm build_scene || echo ""
+docker stop build_scene || echo "skip stop build_scene"
+docker rm build_scene || echo "skip rm build_scene"
 docker run -v $(pwd):/go/src/jhqc.com/songcf/scene/ \
            -w /go/src/jhqc.com/songcf/scene/ \
            --name build_scene \
