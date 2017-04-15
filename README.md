@@ -10,6 +10,7 @@
 # 部署
 1. 从私有仓库pull最新的镜像 `docker pull 139.198.2.55/soalib/scene:1.0_xxx`
 2. 启动
+
 ```
 # description
 # MYSQL_SERVER mysql数据库地址
