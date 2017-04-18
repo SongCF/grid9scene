@@ -38,6 +38,31 @@ func (g *Grid) Close() {
 	}
 }
 
+
+func GetGrid(appId, spaceId, gridId string) *Grid {
+	if app, ok := AppL[appId]; ok {
+		if space, ok := app.SpaceM[spaceId]; ok {
+			if grid, ok := space.GridM[gridId]; ok {
+				return grid
+			}
+		}
+	}
+	return nil
+}
+
+func SetGrid(appId, spaceId, gridId string, g *Grid) {
+	if app, ok := AppL[appId]; ok {
+		if space, ok := app.SpaceM[spaceId]; ok {
+			space.GridM[gridId] = g
+		} else {
+			log.Errorln("not found space:", spaceId)
+		}
+	} else {
+		log.Errorln("not found app:", appId)
+	}
+}
+
+
 func CalcGridId(posX, posY, w, h float32) string {
 	x := int32(posX / w)
 	y := int32(posY / h)

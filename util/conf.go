@@ -18,6 +18,7 @@ var (
 
 const (
 	SCT_DB   = "db"
+	SCT_CACHE   = "cache"
 	SCT_HTTP = "http"
 	SCT_TCP  = "tcp"
 	SCT_ZK = "zookeeper"
@@ -27,11 +28,11 @@ type Config struct {
 	c *ConfigFile
 }
 
-func (c *Config) GetInt(section, key string) int {
+func (c *Config) GetInt(section, key string, dft int) int {
 	val, err := c.c.Int(section, key)
 	if err != nil {
 		log.Errorf("config get int error: key=[%v]%s, val=%s, err=%v", section, key, val, err)
-		return 0
+		return dft
 	}
 	return val
 }
@@ -63,8 +64,8 @@ func InitConf() {
 
 func loadTcpConfig() {
 	//read write buf
-	ReadBufSize = Conf.GetInt(SCT_TCP, "read_buf")
-	WriteBufSize = Conf.GetInt(SCT_TCP, "write_buf")
+	ReadBufSize = Conf.GetInt(SCT_TCP, "read_buf", 2048)
+	WriteBufSize = Conf.GetInt(SCT_TCP, "write_buf", 2048)
 	//deadline
-	ReadDeadline = time.Duration(Conf.GetInt(SCT_TCP, "deadline_time")) * time.Second
+	ReadDeadline = time.Duration(Conf.GetInt(SCT_TCP, "deadline_time", 120)) * time.Second
 }

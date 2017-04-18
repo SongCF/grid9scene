@@ -27,6 +27,7 @@ func main() {
 
 	InitDB()
 	loadAppTbl()
+	InitCache()
 
 	go HttpServer()
 

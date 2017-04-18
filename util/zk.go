@@ -103,8 +103,8 @@ func GetServices(name string) {
 func connect() *zk.Conn {
 	serverStr := Conf.Get(SCT_ZK, "zk_servers")
 	auth := Conf.Get(SCT_ZK, "zk_auth")
-	zkTimeout := Conf.GetInt(SCT_ZK, "zk_timeout")
-	if serverStr == "" || auth == "" || zkTimeout == 0 {
+	zkTimeout := Conf.GetInt(SCT_ZK, "zk_timeout", 10)
+	if serverStr == "" || auth == "" {
 		panic("None zookeeper addr or auth")
 	}
 	zkServers := strings.Split(serverStr, ",")

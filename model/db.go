@@ -19,8 +19,8 @@ func InitDB() {
 	mysql, err := sql.Open("mysql", dst)
 	CheckError(err)
 	DB = mysql
-	DB.SetMaxOpenConns(Conf.GetInt(SCT_DB, "max_open_conn"))
-	DB.SetMaxIdleConns(Conf.GetInt(SCT_DB, "max_idle_conn"))
+	DB.SetMaxOpenConns(Conf.GetInt(SCT_DB, "max_open_conn", 2000))
+	DB.SetMaxIdleConns(Conf.GetInt(SCT_DB, "max_idle_conn", 1000))
 	err = DB.Ping()
 	CheckError(err)
 
