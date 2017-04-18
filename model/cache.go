@@ -6,6 +6,13 @@ import (
 	"github.com/mediocregopher/radix.v2/pool"
 	. "jhqc.com/songcf/scene/util"
 	"time"
+	"fmt"
+)
+
+
+const (
+	FORMAT_GRID = "scene:%s:grid:%s:%s"   //scene:app_id:grid:space_id:grid_id
+	FORMAT_USER = "scene:%s:user:%v" //scene:app_id:user:uid
 )
 
 // mem cache
@@ -67,6 +74,42 @@ func InitCache() {
 
 func test() {
 	log.Debug("cache test...")
-	rsp := ccPool.Cmd("GET", "scene:test:name")
-	log.Infof("ret : %v", rsp)
+	rsp1 := ccPool.Cmd("SET", "scene:test:name", "test set name")
+	rsp2 := ccPool.Cmd("GET", "scene:test:name")
+	log.Infof("set ret:%v, get ret:%v", rsp1, rsp2)
+
+	// scene:app_id:grid:space_id:grid_id  ->   uid(set)
+	ret := ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("SMOVE", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"), 1)
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 3)
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("SREM", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"))
+	CheckError(ret.Err)
+	log.Infof("set(0,0) mem:%v", ret)
+	ret = ccPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"))
+	CheckError(ret.Err)
+	log.Infof("set(1,1) mem:%v", ret)
+
+	// scene:app_id:user:uid  ->  {space_id,grid_id,x,y,angle,exd,node}
+	ret = ccPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "1", "grid_id", "1")
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 2), "space_id", "1", "grid_id", "1")
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 3), "space_id", "1", "grid_id", "1")
+	CheckError(ret.Err)
+	ret = ccPool.Cmd("DEL", fmt.Sprintf(FORMAT_USER, "1", 2))
+	CheckError(ret.Err)
+
+	// pipeline
+	ret = ccPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "grid_id")
+	CheckError(ret.Err)
+	log.Infof("HASH(1,1):%v", ret)
 }
