@@ -53,4 +53,3 @@ func BroadcastReq(s *Session, m []byte) (int32, proto.Message) {
 	}
 	return 0, nil
 }
-

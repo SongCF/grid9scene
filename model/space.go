@@ -6,9 +6,6 @@ import (
 	"jhqc.com/songcf/scene/pb"
 )
 
-
-
-
 func CreateSpace(appId, spaceId string, gridWidth, gridHeight float32) *pb.ErrInfo {
 	//already exist
 	_, _, e := GetSpaceInfo(appId, spaceId)
@@ -52,7 +49,6 @@ func DeleteSpace(appId, spaceId string) *pb.ErrInfo {
 	return nil
 }
 
-
 //TODO cache in mem
 func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.ErrInfo) {
 	// query space info from db
@@ -70,4 +66,3 @@ func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.E
 	}
 	return
 }
-

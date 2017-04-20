@@ -1,21 +1,19 @@
 package util
 
 import (
-	"github.com/samuel/go-zookeeper/zk"
-	"time"
-	"fmt"
-	"strings"
-	log "github.com/Sirupsen/logrus"
 	"encoding/json"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"github.com/samuel/go-zookeeper/zk"
+	"strings"
+	"time"
 )
 
 type zkData struct {
 	URI string `json:"uri"`
 }
 
-
 var conn *zk.Conn
-
 
 // Register to zk
 func Register() {
@@ -110,7 +108,7 @@ func connect() *zk.Conn {
 	zkServers := strings.Split(serverStr, ",")
 
 	log.Infoln("Connecting Zookeeper ...", zkServers)
-	conn, _, err := zk.Connect(zkServers, time.Duration(zkTimeout) * time.Second)
+	conn, _, err := zk.Connect(zkServers, time.Duration(zkTimeout)*time.Second)
 	if err != nil {
 		log.Errorln("Establish connect to Zookeeper error: ", err)
 		panic(err)

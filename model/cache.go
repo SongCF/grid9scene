@@ -1,27 +1,24 @@
 package model
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/mediocregopher/radix.v2/redis"
 	"github.com/mediocregopher/radix.v2/pool"
+	"github.com/mediocregopher/radix.v2/redis"
+	"jhqc.com/songcf/scene/pb"
 	. "jhqc.com/songcf/scene/util"
 	"time"
-	"fmt"
-	"jhqc.com/songcf/scene/pb"
 )
-
 
 const (
-	FORMAT_GRID = "scene:%s:grid:%s:%s"   //scene:app_id:grid:space_id:grid_id
-	FORMAT_USER = "scene:%s:user:%v" //scene:app_id:user:uid
-	NIL = "nil"
+	FORMAT_GRID = "scene:%s:grid:%s:%s" //scene:app_id:grid:space_id:grid_id
+	FORMAT_USER = "scene:%s:user:%v"    //scene:app_id:user:uid
+	NIL         = "nil"
 )
-
 
 var (
 	CCPool *pool.Pool
 )
-
 
 func InitCache() {
 	addr := Conf.Get(SCT_CACHE, "cc_server")
@@ -71,7 +68,6 @@ func InitCache() {
 	test()
 }
 
-
 func test() {
 	log.Debug("cache test...")
 	rsp1 := CCPool.Cmd("SET", "scene:test:name", "test set name")
@@ -114,11 +110,10 @@ func test() {
 	log.Infof("HASH(1,1):%v", ret)
 }
 
-
 // except self uid
 func GetRoundUidList(appId, spaceId string, gridIdL *[]string, uid int32, conn *redis.Client) ([]int32, *pb.ErrInfo) {
 	rg := make([]interface{}, len(*gridIdL))
-	for i, gid := range (*gridIdL) {
+	for i, gid := range *gridIdL {
 		rg[i] = fmt.Sprintf(FORMAT_GRID, appId, spaceId, gid)
 	}
 	uidUnion := conn.Cmd("SUNION", rg...)
@@ -131,7 +126,7 @@ func GetRoundUidList(appId, spaceId string, gridIdL *[]string, uid int32, conn *
 		log.Errorf("JoinReq(user[%v:%v]) get uidUnion array error(%v)", appId, uid, err)
 		return nil, pb.ErrServerBusy
 	}
-	uidL := make([]int32, len(unionRespL) - 1) // except self
+	uidL := make([]int32, len(unionRespL)-1) // except self
 	for i, resp := range unionRespL {
 		tmpUid, err := resp.Int()
 		if err != nil {
@@ -171,13 +166,13 @@ func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.Er
 		return nil, pb.ErrServerBusy
 	}
 	return &UserInfo{
-		SpaceId : spaceId,
-		GridId : gridId,
-		PosX : float32(x),
-		PosY : float32(y),
-		Angle : float32(angle),
-		MoveTime : int32(moveTime),
-		ExData : []byte(exd),
+		SpaceId:  spaceId,
+		GridId:   gridId,
+		PosX:     float32(x),
+		PosY:     float32(y),
+		Angle:    float32(angle),
+		MoveTime: int32(moveTime),
+		ExData:   []byte(exd),
 	}, nil
 }
 

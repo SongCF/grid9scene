@@ -1,11 +1,11 @@
 package gateway
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
-	"fmt"
 )
 
 // join space
@@ -122,9 +122,9 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 		tta := float32(tAngle)
 		ul[i] = &pb.UserData{
 			UserId: &uid,
-			PosX: &ttx,
-			PosY: &tty,
-			Angle: &tta,
+			PosX:   &ttx,
+			PosY:   &tty,
+			Angle:  &tta,
 			ExData: []byte(tExd),
 		}
 	}
@@ -135,13 +135,13 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 	//=====================
 	//join ntf
 	//=====================
-	joinNtf := &pb.JoinNtf{User:&pb.UserData{
+	joinNtf := &pb.JoinNtf{User: &pb.UserData{
 		UserId: &s.Uid,
-			PosX: &x,
-			PosY: &y,
-			Angle: &angle,
-			ExData: payload.ExData,
-		}}
+		PosX:   &x,
+		PosY:   &y,
+		Angle:  &angle,
+		ExData: payload.ExData,
+	}}
 	for _, uid := range uidL {
 		tSe := GetSession(s.AppId, uid)
 		tSe.Rsp(pb.CmdJoinNtf, joinNtf)
@@ -199,4 +199,3 @@ func getJoinPos(s *Session, payload *pb.JoinReq) (spaceId string, x, y, angle fl
 	}
 	return
 }
-

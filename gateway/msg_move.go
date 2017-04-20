@@ -1,13 +1,12 @@
 package gateway
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
-	"fmt"
 )
-
 
 func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 	payload := &pb.MoveReq{}
@@ -106,9 +105,9 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 	log.Debugf("round uid list: %v", uidL)
 	moveNtf := &pb.MoveNtf{
 		UserId: &s.Uid,
-		PosX:  &x,
-		PosY:  &y,
-		Angle: &angle,
+		PosX:   &x,
+		PosY:   &y,
+		Angle:  &angle,
 	}
 	for _, uid := range uidL {
 		tSe := GetSession(s.AppId, uid)
@@ -139,12 +138,12 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		}
 		log.Debugf("join ntf uid list: %v", joinNtfUidL)
 		joinNtf := &pb.JoinNtf{User: &pb.UserData{
-				UserId: &s.Uid,
-				PosX:   &x,
-				PosY:   &y,
-				Angle:  &angle,
-				ExData: oldUserInfo.ExData,
-			}}
+			UserId: &s.Uid,
+			PosX:   &x,
+			PosY:   &y,
+			Angle:  &angle,
+			ExData: oldUserInfo.ExData,
+		}}
 		for _, uid := range joinNtfUidL {
 			tSe := GetSession(s.AppId, uid)
 			tSe.Rsp(pb.CmdJoinNtf, joinNtf)
@@ -176,9 +175,9 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 			tta := float32(tAngle)
 			ul[i] = &pb.UserData{
 				UserId: &uid,
-				PosX: &ttx,
-				PosY: &tty,
-				Angle: &tta,
+				PosX:   &ttx,
+				PosY:   &tty,
+				Angle:  &tta,
 				ExData: []byte(tExd),
 			}
 		}

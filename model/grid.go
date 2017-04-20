@@ -5,7 +5,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-
 func CalcGridId(posX, posY, w, h float32) string {
 	x := int32(posX / w)
 	y := int32(posY / h)

@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"encoding/json"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	. "jhqc.com/songcf/scene/model"
@@ -9,7 +10,6 @@ import (
 	. "jhqc.com/songcf/scene/util"
 	"net/http"
 	"strconv"
-	"fmt"
 )
 
 func HttpServer() {

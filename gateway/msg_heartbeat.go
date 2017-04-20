@@ -1,6 +1,5 @@
 package gateway
 
-
 import (
 	"github.com/golang/protobuf/proto"
 	"jhqc.com/songcf/scene/pb"

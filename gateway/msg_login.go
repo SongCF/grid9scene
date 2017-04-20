@@ -7,7 +7,6 @@ import (
 	"jhqc.com/songcf/scene/pb"
 )
 
-
 //user login
 func LoginReq(s *Session, m []byte) (int32, proto.Message) {
 	payload := &pb.LoginReq{}

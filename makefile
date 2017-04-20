@@ -5,13 +5,16 @@ ifeq ("$(shell uname -o)", "Cygwin")
 endif
 
 
-# 所有
+# 获取依赖，然后编译
 all: deps
 	go build -o ./scene
 
 # 获取依赖
 deps:
 	$(GOPACK) get-deps
+
+fmt:
+	gofmt -w .
 
 
 # 清除

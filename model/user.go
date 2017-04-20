@@ -1,7 +1,5 @@
 package model
 
-
-
 type UserInfo struct {
 	SpaceId  string  `json:"space_id"`
 	GridId   string  `json:"grid_id"`

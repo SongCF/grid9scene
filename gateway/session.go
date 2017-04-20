@@ -20,13 +20,9 @@ type Session struct {
 	ConnectTime time.Time
 }
 
-
-
 var (
 	SessionPool = map[string]map[int32]*Session{}
 )
-
-
 
 func (s *Session) Rsp(cmd int32, payload proto.Message) {
 	if s == nil {

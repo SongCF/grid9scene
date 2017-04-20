@@ -1,8 +1,8 @@
 package model
 
 import (
-	"jhqc.com/songcf/scene/pb"
 	log "github.com/Sirupsen/logrus"
+	"jhqc.com/songcf/scene/pb"
 )
 
 func HasApp(appId string) bool {

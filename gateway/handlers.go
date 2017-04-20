@@ -14,5 +14,3 @@ var Handlers = map[int32]func(*Session, []byte) (int32, proto.Message){
 	20050: QueryPosReq,  // 查询位置请求
 	20061: HeartbeatReq, // 系统预留，用于表示心跳
 }
-
-

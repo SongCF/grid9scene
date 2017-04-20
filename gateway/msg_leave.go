@@ -1,13 +1,12 @@
 package gateway
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
-	"fmt"
 )
-
 
 // leave space
 func LeaveReq(s *Session, m []byte) (int32, proto.Message) {
@@ -103,4 +102,3 @@ func Leave(s *Session, payload *pb.LeaveReq) (int32, proto.Message) {
 	}
 	return 0, nil
 }
-

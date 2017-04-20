@@ -17,11 +17,11 @@ var (
 )
 
 const (
-	SCT_DB   = "db"
-	SCT_CACHE   = "cache"
-	SCT_HTTP = "http"
-	SCT_TCP  = "tcp"
-	SCT_ZK = "zookeeper"
+	SCT_DB    = "db"
+	SCT_CACHE = "cache"
+	SCT_HTTP  = "http"
+	SCT_TCP   = "tcp"
+	SCT_ZK    = "zookeeper"
 )
 
 type Config struct {
