@@ -64,8 +64,8 @@ func InitConf() {
 
 func loadTcpConfig() {
 	//read write buf
-	ReadBufSize = Conf.GetInt(SCT_TCP, "read_buf", 2048)
-	WriteBufSize = Conf.GetInt(SCT_TCP, "write_buf", 2048)
+	ReadBufSize = Conf.GetInt(SCT_TCP, "tcp_read_buf", 2048)
+	WriteBufSize = Conf.GetInt(SCT_TCP, "tcp_write_buf", 2048)
 	//deadline
-	ReadDeadline = time.Duration(Conf.GetInt(SCT_TCP, "deadline_time", 120)) * time.Second
+	ReadDeadline = time.Duration(Conf.GetInt(SCT_TCP, "tcp_dead_time", 120)) * time.Second
 }

@@ -3,9 +3,7 @@ package gateway
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
-	. "jhqc.com/songcf/scene/controller"
-	. "jhqc.com/songcf/scene/global"
-	. "jhqc.com/songcf/scene/model"
+	"jhqc.com/songcf/scene/global"
 	"jhqc.com/songcf/scene/pb"
 	"jhqc.com/songcf/scene/util"
 	"time"
@@ -32,7 +30,7 @@ func agent(s *Session, in chan []byte) {
 			minTimer = time.After(time.Minute)
 		case <-s.Die:
 			return
-		case <-GlobalDie:
+		case <-global.GlobalDie:
 			return
 		}
 	}

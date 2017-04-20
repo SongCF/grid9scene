@@ -7,19 +7,19 @@ import (
 	. "jhqc.com/songcf/scene/util"
 	"time"
 	"fmt"
+	"jhqc.com/songcf/scene/pb"
 )
 
 
 const (
 	FORMAT_GRID = "scene:%s:grid:%s:%s"   //scene:app_id:grid:space_id:grid_id
 	FORMAT_USER = "scene:%s:user:%v" //scene:app_id:user:uid
+	NIL = "nil"
 )
 
-// mem cache
 
 var (
-	AppL = make(map[string]*App)
-	ccPool *pool.Pool
+	CCPool *pool.Pool
 )
 
 
@@ -65,7 +65,7 @@ func InitCache() {
 	}
 	p, err := pool.NewCustom("tcp", addr, size, df)
 	CheckError(err)
-	ccPool = p
+	CCPool = p
 
 	//TODO delete
 	test()
@@ -74,42 +74,121 @@ func InitCache() {
 
 func test() {
 	log.Debug("cache test...")
-	rsp1 := ccPool.Cmd("SET", "scene:test:name", "test set name")
-	rsp2 := ccPool.Cmd("GET", "scene:test:name")
+	rsp1 := CCPool.Cmd("SET", "scene:test:name", "test set name")
+	rsp2 := CCPool.Cmd("GET", "scene:test:name")
 	log.Infof("set ret:%v, get ret:%v", rsp1, rsp2)
 
 	// scene:app_id:grid:space_id:grid_id  ->   uid(set)
-	ret := ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
+	ret := CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
+	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
+	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("SMOVE", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"), 1)
+	ret = CCPool.Cmd("SMOVE", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"), 1)
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 3)
+	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 3)
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("SREM", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
+	ret = CCPool.Cmd("SREM", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"))
+	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"))
 	CheckError(ret.Err)
 	log.Infof("set(0,0) mem:%v", ret)
-	ret = ccPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"))
+	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"))
 	CheckError(ret.Err)
 	log.Infof("set(1,1) mem:%v", ret)
 
 	// scene:app_id:user:uid  ->  {space_id,grid_id,x,y,angle,exd,node}
-	ret = ccPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "1", "grid_id", "1")
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 2), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 2), "space_id", "1", "grid_id", "1")
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 3), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 3), "space_id", "1", "grid_id", "1")
 	CheckError(ret.Err)
-	ret = ccPool.Cmd("DEL", fmt.Sprintf(FORMAT_USER, "1", 2))
+	ret = CCPool.Cmd("DEL", fmt.Sprintf(FORMAT_USER, "1", 2))
 	CheckError(ret.Err)
 
 	// pipeline
-	ret = ccPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "grid_id")
+	ret = CCPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "grid_id")
 	CheckError(ret.Err)
 	log.Infof("HASH(1,1):%v", ret)
+}
+
+
+// except self uid
+func GetRoundUidList(appId, spaceId string, gridIdL *[]string, uid int32, conn *redis.Client) ([]int32, *pb.ErrInfo) {
+	rg := make([]interface{}, len(*gridIdL))
+	for i, gid := range (*gridIdL) {
+		rg[i] = fmt.Sprintf(FORMAT_GRID, appId, spaceId, gid)
+	}
+	uidUnion := conn.Cmd("SUNION", rg...)
+	if uidUnion.Err != nil {
+		log.Errorf("JoinReq(user[%v:%v]) Cache Cmd(SUNION) error(%v)", appId, uid, uidUnion.Err)
+		return nil, pb.ErrServerBusy
+	}
+	unionRespL, err := uidUnion.Array()
+	if err != nil {
+		log.Errorf("JoinReq(user[%v:%v]) get uidUnion array error(%v)", appId, uid, err)
+		return nil, pb.ErrServerBusy
+	}
+	uidL := make([]int32, len(unionRespL) - 1) // except self
+	for i, resp := range unionRespL {
+		tmpUid, err := resp.Int()
+		if err != nil {
+			log.Errorf("JoinReq(user[%v:%v]) parse uid int error(%v)", appId, uid, err)
+			return nil, pb.ErrServerBusy
+		}
+		tu := int32(tmpUid)
+		if uid != tu {
+			uidL[i] = tu
+		}
+	}
+	return uidL, nil
+}
+
+func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.ErrInfo) {
+	resp := conn.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, appId, uid),
+		"space_id", "grid_id", "x", "y", "angle", "move_time", "exd")
+	if resp.Err != nil {
+		log.Errorf("GetUserData user(%v:%v) data HMGET error: %v", appId, uid, resp.Err)
+		return nil, pb.ErrServerBusy
+	}
+	l, err := resp.Array()
+	if err != nil || len(l) != 7 {
+		log.Errorf("GetUserData user(%v:%v) data parse array error: %v", appId, uid, resp.Err)
+		return nil, pb.ErrServerBusy
+	}
+	spaceId, err0 := l[0].Str()
+	gridId, err1 := l[1].Str()
+	x, err2 := l[2].Float64()
+	y, err3 := l[3].Float64()
+	angle, err4 := l[4].Float64()
+	moveTime, err5 := l[5].Int()
+	exd, err6 := l[6].Str()
+	if err0 != nil || err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil {
+		log.Errorf("GetUserData(user[%v:%v]) parse userInfo error(%v,%v,%v,%v,%v,%v,%v)",
+			appId, uid, err0, err1, err2, err3, err4, err5, err6)
+		return nil, pb.ErrServerBusy
+	}
+	return &UserInfo{
+		SpaceId : spaceId,
+		GridId : gridId,
+		PosX : float32(x),
+		PosY : float32(y),
+		Angle : float32(angle),
+		MoveTime : int32(moveTime),
+		ExData : []byte(exd),
+	}, nil
+}
+
+func ResetUserInfo(appId string, uid int32, conn *redis.Client) *pb.ErrInfo {
+	// UserInfo
+	err := conn.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, appId, uid),
+		"space_id", NIL, "grid_id", NIL,
+		"x", DEFAULT_POS_X, "y", DEFAULT_POS_Y, "angle", DEFAULT_ANGLE,
+		"move_time", 0, "exd", "").Err
+	if err != nil {
+		return pb.ErrServerBusy
+	}
+	return nil
 }

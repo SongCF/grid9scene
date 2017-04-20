@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
-	. "jhqc.com/songcf/scene/controller"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
 	. "jhqc.com/songcf/scene/util"
 	"net/http"
 	"strconv"
+	"fmt"
 )
 
 func HttpServer() {
@@ -113,11 +113,19 @@ func handleQueryPos(w http.ResponseWriter, r *http.Request) {
 	if err1 != nil {
 		rsp = pb.ErrMsgFormat
 	} else {
-		tarSess := GetSession(appId, int32(queryUid))
-		if tarSess == nil || tarSess.UData == nil {
-			rsp = pb.ErrUserOffline
+		conn, err := CCPool.Get()
+		if err != nil {
+			log.Errorf("handleQueryPos(user[%v:%v]) CCPool:Get error(%v)", appId, queryUid, err)
+			rsp = pb.ErrServerBusy
 		} else {
-			rsp.Ex = tarSess.UData
+			defer CCPool.Put(conn)
+			userInfo, e := GetUserInfo(appId, int32(queryUid), conn)
+			if e != nil {
+				rsp = e
+			} else {
+				rsp.Ex = fmt.Sprintf("{\"space_id\":\"%v\", \"x\":%v, \"y\":%v, \"angle\":%v}",
+					userInfo.SpaceId, userInfo.PosX, userInfo.PosY, userInfo.Angle)
+			}
 		}
 	}
 	b, err := json.Marshal(rsp)

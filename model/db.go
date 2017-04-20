@@ -12,15 +12,15 @@ import (
 var DB *sql.DB
 
 func InitDB() {
-	vL := Conf.Gets(SCT_DB, []string{"db_server", "db_auth", "database"})
+	vL := Conf.Gets(SCT_DB, []string{"db_server", "db_auth", "db_database"})
 	//root:123456@tcp(139.198.5.219:3308)/db_scene_go?charset=utf8
 	dst := fmt.Sprintf("%s@tcp(%s)/%s?charset=utf8", vL[1], vL[0], vL[2])
 	log.Println("init db: ", dst)
 	mysql, err := sql.Open("mysql", dst)
 	CheckError(err)
 	DB = mysql
-	DB.SetMaxOpenConns(Conf.GetInt(SCT_DB, "max_open_conn", 2000))
-	DB.SetMaxIdleConns(Conf.GetInt(SCT_DB, "max_idle_conn", 1000))
+	DB.SetMaxOpenConns(Conf.GetInt(SCT_DB, "db_max_open_conn", 2000))
+	DB.SetMaxIdleConns(Conf.GetInt(SCT_DB, "db_max_idle_conn", 1000))
 	err = DB.Ping()
 	CheckError(err)
 

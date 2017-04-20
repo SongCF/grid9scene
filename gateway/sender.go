@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/global"
-	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
 	"net"
 )

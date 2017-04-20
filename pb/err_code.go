@@ -9,7 +9,7 @@ import (
 type ErrInfo struct {
 	Id   int32       `json:"code"`
 	Desc string      `json:"msg"`
-	Ex   interface{} `json:"response,omitempty"`
+	Ex   string `json:"response,omitempty"`
 }
 
 var (
@@ -20,6 +20,8 @@ var (
 	ErrQueryDBError = &ErrInfo{Id: 10070001, Desc: "query database error"}
 	//请求超时
 	ErrTimeOut = &ErrInfo{Id: 10070002, Desc: "request timeout"}
+	//服务器忙
+	ErrServerBusy = &ErrInfo{Id: 10070003, Desc: "Server Busy"}
 	//未登陆
 	ErrNotLogin = &ErrInfo{Id: 10070101, Desc: "has not login"}
 	//重复登陆
@@ -34,10 +36,12 @@ var (
 	//
 	//应用不存在
 	ErrAppNotExist = &ErrInfo{Id: 10070201, Desc: "app not exist"}
+	//应用已存在
+	ErrAppAlreadyExist = &ErrInfo{Id: 10070202, Desc: "app already exist"}
 	//场景不存在
 	ErrSpaceNotExist = &ErrInfo{Id: 10070301, Desc: "space not exist"}
 	//场景已经存在
-	//ErrSpaceAlreadyExist = &ErrInfo{Id:10070302, Desc:"space already exist"}
+	ErrSpaceAlreadyExist = &ErrInfo{Id:10070302, Desc:"space already exist"}
 	//%% 格子宽高不正确
 	//space_grid_error()-> {10070303, <<"space grid size error">>}.
 	//已加入该场景了

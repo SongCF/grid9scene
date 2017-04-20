@@ -1,4 +1,4 @@
-package model
+package gateway
 
 import (
 	log "github.com/Sirupsen/logrus"
@@ -18,9 +18,15 @@ type Session struct {
 	Conn        net.Conn `json:"-"`
 	PacketCount int32    //对包进行计数
 	ConnectTime time.Time
-
-	UData *UserInfo
 }
+
+
+
+var (
+	SessionPool = map[string]map[int32]*Session{}
+)
+
+
 
 func (s *Session) Rsp(cmd int32, payload proto.Message) {
 	if s == nil {
@@ -57,20 +63,10 @@ func (s *Session) Close() {
 		default:
 			close(s.Die)
 			// post leave
-			if s.UData != nil && s.AppId != "" && s.UData.SpaceId != "" && s.UData.GridId != "" {
-				payload := &pb.LeaveReq{SpaceId: []byte(s.UData.SpaceId)}
-				gridMsg := &GridMsg{
-					Uid:    s.Uid,
-					Cmd:    pb.CmdLeaveReq,
-					Msg:    payload,
-					ExData: s.UData,
-				}
-				grid := GetGrid(s.AppId, s.UData.SpaceId, s.UData.GridId)
-				grid.PostMsg(gridMsg)
-			}
+			Leave(s, &pb.LeaveReq{})
 			// delete session
-			if app, ok := AppL[s.AppId]; ok {
-				delete(app.SessionM, s.Uid)
+			if app, ok := SessionPool[s.AppId]; ok {
+				delete(app, s.Uid)
 			}
 		}
 	}
@@ -84,27 +80,18 @@ func (s *Session) HasLogin() bool {
 }
 
 func SetSession(appId string, uid int32, s *Session) {
-	if app, ok := AppL[appId]; ok {
-		app.SessionM[uid] = s
-	} else {
-		log.Errorln("not found app")
+	app, ok := SessionPool[appId]
+	if !ok {
+		SessionPool[appId] = map[int32]*Session{}
+		app = SessionPool[appId]
 	}
+	app[uid] = s
 }
 
 func GetSession(appId string, uid int32) *Session {
-	if app, ok := AppL[appId]; ok {
-		if s, ok := app.SessionM[uid]; ok {
+	if app, ok := SessionPool[appId]; ok {
+		if s, ok := app[uid]; ok {
 			return s
-		}
-	}
-	return nil
-}
-
-//get user current space_id, grid x y
-func GetUserData(appId string, uid int32) *UserInfo {
-	if app, ok := AppL[appId]; ok {
-		if s, ok := app.SessionM[uid]; ok {
-			return s.UData
 		}
 	}
 	return nil

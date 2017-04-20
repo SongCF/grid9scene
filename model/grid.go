@@ -3,64 +3,7 @@ package model
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/golang/protobuf/proto"
 )
-
-type Grid struct {
-	GridId string         // "x,y"
-	UidM   map[int32]bool // grid uid list
-	MsgBox chan *GridMsg  `json:"-"` // message box
-	Die    chan struct{}  `json:"-"`
-}
-
-type GridMsg struct {
-	Uid    int32 //req uid
-	Cmd    int32 //req cmd
-	Msg    proto.Message
-	ExData interface{}
-}
-
-func (g *Grid) PostMsg(m *GridMsg) {
-	if g != nil && m != nil {
-		select {
-		case <-g.Die:
-		case g.MsgBox <- m:
-		}
-	}
-}
-func (g *Grid) Close() {
-	if g != nil {
-		select {
-		case <-g.Die:
-		default:
-			close(g.Die)
-		}
-	}
-}
-
-
-func GetGrid(appId, spaceId, gridId string) *Grid {
-	if app, ok := AppL[appId]; ok {
-		if space, ok := app.SpaceM[spaceId]; ok {
-			if grid, ok := space.GridM[gridId]; ok {
-				return grid
-			}
-		}
-	}
-	return nil
-}
-
-func SetGrid(appId, spaceId, gridId string, g *Grid) {
-	if app, ok := AppL[appId]; ok {
-		if space, ok := app.SpaceM[spaceId]; ok {
-			space.GridM[gridId] = g
-		} else {
-			log.Errorln("not found space:", spaceId)
-		}
-	} else {
-		log.Errorln("not found app:", appId)
-	}
-}
 
 
 func CalcGridId(posX, posY, w, h float32) string {

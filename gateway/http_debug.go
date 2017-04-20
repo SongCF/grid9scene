@@ -5,7 +5,6 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
-	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
 	"net/http"
 	_ "net/http/pprof"
@@ -33,8 +32,8 @@ func handleStat(w http.ResponseWriter, r *http.Request) {
 
 	res := []byte{}
 	switch queryType {
-	case "cache":
-		s, err := json.MarshalIndent(AppL, "", " ")
+	case "session":
+		s, err := json.MarshalIndent(SessionPool, "", " ")
 		if err != nil {
 			eStr := fmt.Sprintf("Marshal AppL to json error: %v", err)
 			w.Write([]byte(eStr))

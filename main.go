@@ -2,7 +2,6 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	. "jhqc.com/songcf/scene/controller"
 	. "jhqc.com/songcf/scene/gateway"
 	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
@@ -26,7 +25,6 @@ func main() {
 	InitConf()
 
 	InitDB()
-	loadAppTbl()
 	InitCache()
 
 	go HttpServer()
@@ -39,19 +37,6 @@ func main() {
 	initZK()
 
 	select {}
-}
-
-func loadAppTbl() {
-	rows, err := DB.Query("SELECT app_id FROM app;")
-	defer rows.Close()
-	CheckError(err)
-	for rows.Next() {
-		var appId string
-		if err := rows.Scan(&appId); err != nil {
-			log.Fatal(err)
-		}
-		StartApp(appId)
-	}
 }
 
 func initZK() {
