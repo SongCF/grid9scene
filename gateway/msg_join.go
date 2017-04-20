@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"database/sql"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
@@ -163,8 +164,11 @@ func getJoinPos(s *Session, payload *pb.JoinReq) (spaceId string, x, y, angle fl
 			s.AppId, s.Uid)
 		var tmpSpaceId string
 		err := raw.Scan(&tmpSpaceId) // if empty, err = sql.ErrNoRows
-		if err != nil {
-			log.Errorf("user(%v:%v) Query db failed(select last_space)", s.AppId, s.Uid)
+		if err == sql.ErrNoRows {
+			e = pb.ErrMissSpaceId
+			return
+		} else if err != nil {
+			log.Errorf("user(%v:%v) Query db failed(select last_space), err:%v", s.AppId, s.Uid, err)
 			e = pb.ErrQueryDBError
 			return
 		} else {
@@ -177,8 +181,18 @@ func getJoinPos(s *Session, payload *pb.JoinReq) (spaceId string, x, y, angle fl
 			s.AppId, s.Uid, spaceId)
 		var tmpX, tmpY, tmpAngle float32
 		err := raw.Scan(&tmpX, &tmpY, &tmpAngle)
-		if err != nil {
-			log.Errorf("user(%v:%v) Query db failed(select last_pos)", s.AppId, s.Uid)
+		if err == sql.ErrNoRows {
+			if payload.PosX != nil {
+				x = payload.GetPosX()
+			}
+			if payload.PosY != nil {
+				y = payload.GetPosY()
+			}
+			if payload.Angle != nil {
+				angle = payload.GetAngle()
+			}
+		} else if err != nil {
+			log.Errorf("user(%v:%v) Query db failed(select last_pos), err:%v", s.AppId, s.Uid, err)
 			e = pb.ErrQueryDBError
 			return
 		} else {

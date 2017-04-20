@@ -64,7 +64,11 @@ func InitCache() {
 	CheckError(err)
 	CCPool = p
 
-	//TODO delete
+	//clean data
+	log.Info("Flush cache...")
+	err = CCPool.Cmd("FLUSHDB").Err
+	CheckError(err)
+
 	test()
 }
 
@@ -72,42 +76,42 @@ func test() {
 	log.Debug("cache test...")
 	rsp1 := CCPool.Cmd("SET", "scene:test:name", "test set name")
 	rsp2 := CCPool.Cmd("GET", "scene:test:name")
-	log.Infof("set ret:%v, get ret:%v", rsp1, rsp2)
+	log.Debugf("TEST CACHE set ret:%v, get ret:%v", rsp1, rsp2)
 
 	// scene:app_id:grid:space_id:grid_id  ->   uid(set)
-	ret := CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
+	ret := CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 1)
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
+	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 2)
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 1)
+	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 1)
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("SMOVE", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"), 1)
+	ret = CCPool.Cmd("SMOVE", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), fmt.Sprintf(FORMAT_GRID, "test", "1", "1,1"), 1)
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 3)
+	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 3)
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("SREM", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"), 2)
+	ret = CCPool.Cmd("SREM", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 2)
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "0,0"))
+	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"))
 	CheckError(ret.Err)
-	log.Infof("set(0,0) mem:%v", ret)
-	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "1", "1", "1,1"))
+	log.Debugf("TEST CACHE set(0,0) mem:%v", ret)
+	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "test", "1", "1,1"))
 	CheckError(ret.Err)
-	log.Infof("set(1,1) mem:%v", ret)
+	log.Debugf("TEST CACHE set(1,1) mem:%v", ret)
 
 	// scene:app_id:user:uid  ->  {space_id,grid_id,x,y,angle,exd,node}
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 1), "space_id", "1", "grid_id", "1")
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 2), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 2), "space_id", "1", "grid_id", "1")
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "1", 3), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 3), "space_id", "1", "grid_id", "1")
 	CheckError(ret.Err)
-	ret = CCPool.Cmd("DEL", fmt.Sprintf(FORMAT_USER, "1", 2))
+	ret = CCPool.Cmd("DEL", fmt.Sprintf(FORMAT_USER, "test", 2))
 	CheckError(ret.Err)
 
 	// pipeline
-	ret = CCPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "1", 1), "space_id", "grid_id")
+	ret = CCPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "test", 1), "space_id", "grid_id")
 	CheckError(ret.Err)
-	log.Infof("HASH(1,1):%v", ret)
+	log.Debugf("TEST CACHE HASH(1,1):%v", ret)
 }
 
 // except self uid
@@ -126,16 +130,16 @@ func GetRoundUidList(appId, spaceId string, gridIdL *[]string, uid int32, conn *
 		log.Errorf("JoinReq(user[%v:%v]) get uidUnion array error(%v)", appId, uid, err)
 		return nil, pb.ErrServerBusy
 	}
-	uidL := make([]int32, len(unionRespL)-1) // except self
-	for i, resp := range unionRespL {
+	uidL := []int32{}
+	for _, resp := range unionRespL {
 		tmpUid, err := resp.Int()
 		if err != nil {
 			log.Errorf("JoinReq(user[%v:%v]) parse uid int error(%v)", appId, uid, err)
 			return nil, pb.ErrServerBusy
 		}
 		tu := int32(tmpUid)
-		if uid != tu {
-			uidL[i] = tu
+		if uid != tu { // except self
+			uidL = append(uidL, tu)
 		}
 	}
 	return uidL, nil

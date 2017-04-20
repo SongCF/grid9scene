@@ -42,8 +42,8 @@ var (
 	ErrSpaceNotExist = &ErrInfo{Id: 10070301, Desc: "space not exist"}
 	//场景已经存在
 	ErrSpaceAlreadyExist = &ErrInfo{Id: 10070302, Desc: "space already exist"}
-	//%% 格子宽高不正确
-	//space_grid_error()-> {10070303, <<"space grid size error">>}.
+	//缺少space
+	ErrMissSpaceId = &ErrInfo{Id: 10070303, Desc: "miss space id"}
 	//已加入该场景了
 	ErrAlreadyJoinSpace = &ErrInfo{Id: 10070304, Desc: "already join current space"}
 	//未加入任何场景
