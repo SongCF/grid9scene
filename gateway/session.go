@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	"jhqc.com/songcf/scene/pb"
@@ -21,7 +22,7 @@ type Session struct {
 }
 
 var (
-	SessionPool = map[string]map[int32]*Session{}
+	SessionPool = map[string]*Session{} // appId:uid  -> session
 )
 
 func (s *Session) Rsp(cmd int32, payload proto.Message) {
@@ -61,9 +62,7 @@ func (s *Session) Close() {
 			// post leave
 			Leave(s, &pb.LeaveReq{})
 			// delete session
-			if app, ok := SessionPool[s.AppId]; ok {
-				delete(app, s.Uid)
-			}
+			delete(SessionPool, fmt.Sprintf("%v:%v", s.AppId, s.Uid))
 		}
 	}
 }
@@ -76,19 +75,12 @@ func (s *Session) HasLogin() bool {
 }
 
 func SetSession(appId string, uid int32, s *Session) {
-	app, ok := SessionPool[appId]
-	if !ok {
-		SessionPool[appId] = map[int32]*Session{}
-		app = SessionPool[appId]
-	}
-	app[uid] = s
+	SessionPool[fmt.Sprintf("%v:%v", appId, uid)] = s
 }
 
 func GetSession(appId string, uid int32) *Session {
-	if app, ok := SessionPool[appId]; ok {
-		if s, ok := app[uid]; ok {
-			return s
-		}
+	if s, ok := SessionPool[fmt.Sprintf("%v:%v", appId, uid)]; ok {
+		return s
 	}
 	return nil
 }

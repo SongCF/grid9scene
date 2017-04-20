@@ -2,9 +2,17 @@ package model
 
 import (
 	"database/sql"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"jhqc.com/songcf/scene/pb"
 )
+
+type spaceInfo struct {
+	GridWidth  float32
+	GridHeight float32
+}
+
+var spaceM = map[string]*spaceInfo{}
 
 func CreateSpace(appId, spaceId string, gridWidth, gridHeight float32) *pb.ErrInfo {
 	//already exist
@@ -49,8 +57,12 @@ func DeleteSpace(appId, spaceId string) *pb.ErrInfo {
 	return nil
 }
 
-//TODO cache in mem
 func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.ErrInfo) {
+	if info, ok := spaceM[fmt.Sprintf("%v:%v", appId, spaceId)]; ok {
+		gridWidth = info.GridWidth
+		gridHeight = info.GridHeight
+		return
+	}
 	// query space info from db
 	raw := DB.QueryRow("SELECT grid_width,grid_height FROM space WHERE app_id=? and space_id=?;", appId, spaceId)
 	err := raw.Scan(&gridWidth, &gridHeight) // if empty, err = sql.ErrNoRows
@@ -63,6 +75,10 @@ func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.E
 		log.Errorf("select grid w h error(%v:%v) = %v\n", appId, spaceId, err)
 		e = pb.ErrQueryDBError
 		return
+	}
+	spaceM[fmt.Sprintf("%v:%v", appId, spaceId)] = &spaceInfo{
+		GridWidth:  gridWidth,
+		GridHeight: gridHeight,
 	}
 	return
 }
