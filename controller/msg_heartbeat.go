@@ -1,7 +1,8 @@
-package gateway
+package controller
 
 import (
 	"github.com/golang/protobuf/proto"
+	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
 )
 

@@ -1,4 +1,4 @@
-package gateway
+package model
 
 import (
 	"fmt"
@@ -50,20 +50,6 @@ func (s *Session) Rsp(cmd int32, payload proto.Message) {
 	}
 	if s != nil && s.ChanOut != nil {
 		s.ChanOut <- data
-	}
-}
-
-func (s *Session) Close() {
-	if s != nil {
-		select {
-		case <-s.Die: //check already closed
-		default:
-			close(s.Die)
-			// post leave
-			Leave(s, &pb.LeaveReq{})
-			// delete session
-			delete(SessionPool, fmt.Sprintf("%v:%v", s.AppId, s.Uid))
-		}
 	}
 }
 

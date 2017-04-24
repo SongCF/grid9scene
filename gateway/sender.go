@@ -3,7 +3,9 @@ package gateway
 import (
 	"encoding/binary"
 	log "github.com/Sirupsen/logrus"
+	. "jhqc.com/songcf/scene/controller"
 	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
 	"net"
 )
@@ -12,7 +14,7 @@ func sender(s *Session) {
 	defer log.Debug("---session sender end.")
 	defer GlobalWG.Done()
 	defer RecoverPanic()
-	defer s.Close()
+	defer CloseSession(s)
 	defer s.Conn.Close()
 
 	writeBuf := make([]byte, WriteBufSize)

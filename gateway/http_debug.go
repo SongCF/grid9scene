@@ -5,6 +5,7 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
 	"net/http"
 	_ "net/http/pprof"

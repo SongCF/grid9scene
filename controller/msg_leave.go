@@ -1,4 +1,4 @@
-package gateway
+package controller
 
 import (
 	"fmt"
@@ -101,4 +101,18 @@ func Leave(s *Session, payload *pb.LeaveReq) (int32, proto.Message) {
 		}
 	}
 	return 0, nil
+}
+
+func CloseSession(s *Session) {
+	if s != nil {
+		select {
+		case <-s.Die: //check already closed
+		default:
+			close(s.Die)
+			// post leave
+			Leave(s, &pb.LeaveReq{})
+			// delete session
+			delete(SessionPool, fmt.Sprintf("%v:%v", s.AppId, s.Uid))
+		}
+	}
 }

@@ -4,7 +4,9 @@ import (
 	"encoding/binary"
 	log "github.com/Sirupsen/logrus"
 	"io"
+	. "jhqc.com/songcf/scene/controller"
 	. "jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
 	"net"
 	"time"
@@ -30,7 +32,7 @@ func handleClient(conn net.Conn) {
 	s.ChanOut = make(chan []byte)
 	s.Die = make(chan struct{})
 
-	defer s.Close()
+	defer CloseSession(&s)
 
 	in := make(chan []byte)
 	defer close(in)

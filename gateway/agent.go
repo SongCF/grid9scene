@@ -3,7 +3,9 @@ package gateway
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
+	. "jhqc.com/songcf/scene/controller"
 	"jhqc.com/songcf/scene/global"
+	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
 	"jhqc.com/songcf/scene/util"
 	"time"
@@ -12,7 +14,7 @@ import (
 func agent(s *Session, in chan []byte) {
 	defer log.Debug("---session agent end.")
 	defer util.RecoverPanic()
-	defer s.Close()
+	defer CloseSession(s)
 
 	minTimer := time.After(time.Minute)
 	for {

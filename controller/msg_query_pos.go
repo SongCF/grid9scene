@@ -1,4 +1,4 @@
-package gateway
+package controller
 
 import (
 	log "github.com/Sirupsen/logrus"
