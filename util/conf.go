@@ -44,6 +44,13 @@ func InitConf() {
 	loadTcpConfig()
 }
 
+// use for test
+func InitConfTest(file string) {
+	c, err := LoadConfigFile(file)
+	CheckError(err)
+	Conf = &Config{c: c}
+}
+
 func loadTcpConfig() {
 	var err error
 	//read write buf

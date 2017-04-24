@@ -19,8 +19,7 @@ func HasApp(appId string) bool {
 
 func CreateApp(appId, name, key string) *pb.ErrInfo {
 	//db
-	_, err := DB.Exec("INSERT INTO app(app_id,name,private_key) values(?,?,?);",
-		appId, name, key)
+	_, err := DB.Exec("INSERT INTO app(app_id,name,private_key) values(?,?,?);", appId, name, key)
 	if IsDuplicate(err) {
 		return pb.ErrAppAlreadyExist
 	}

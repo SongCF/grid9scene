@@ -65,50 +65,6 @@ func InitCache() {
 	log.Info("Flush cache...")
 	err = CCPool.Cmd("FLUSHDB").Err
 	CheckError(err)
-
-	test()
-}
-
-func test() {
-	log.Debug("cache test...")
-	rsp1 := CCPool.Cmd("SET", "scene:test:name", "test set name")
-	rsp2 := CCPool.Cmd("GET", "scene:test:name")
-	log.Debugf("TEST CACHE set ret:%v, get ret:%v", rsp1, rsp2)
-
-	// scene:app_id:grid:space_id:grid_id  ->   uid(set)
-	ret := CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 1)
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 2)
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 1)
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("SMOVE", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), fmt.Sprintf(FORMAT_GRID, "test", "1", "1,1"), 1)
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("SADD", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 3)
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("SREM", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"), 2)
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "test", "1", "0,0"))
-	CheckError(ret.Err)
-	log.Debugf("TEST CACHE set(0,0) mem:%v", ret)
-	ret = CCPool.Cmd("SMEMBERS", fmt.Sprintf(FORMAT_GRID, "test", "1", "1,1"))
-	CheckError(ret.Err)
-	log.Debugf("TEST CACHE set(1,1) mem:%v", ret)
-
-	// scene:app_id:user:uid  ->  {space_id,grid_id,x,y,angle,exd,node}
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 1), "space_id", "1", "grid_id", "1")
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 2), "space_id", "1", "grid_id", "1")
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 3), "space_id", "1", "grid_id", "1")
-	CheckError(ret.Err)
-	ret = CCPool.Cmd("DEL", fmt.Sprintf(FORMAT_USER, "test", 2))
-	CheckError(ret.Err)
-
-	// pipeline
-	ret = CCPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "test", 1), "space_id", "grid_id")
-	CheckError(ret.Err)
-	log.Debugf("TEST CACHE HASH(1,1):%v", ret)
 }
 
 // except self uid
