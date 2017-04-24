@@ -8,7 +8,8 @@ import (
 )
 
 func TcpServer() {
-	tcpAddr := Conf.Get(SCT_TCP, "tcp_server")
+	tcpAddr, err := Conf.Get(SCT_TCP, "tcp_server")
+	CheckError(err)
 	addr, err := net.ResolveTCPAddr("tcp4", tcpAddr)
 	CheckError(err)
 

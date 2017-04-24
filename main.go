@@ -34,9 +34,13 @@ func main() {
 	go StartPProf()
 	go StartStats()
 
+	// register zk
 	initZK()
 
 	select {}
+
+	// 3.unregister zookeeper
+	Unregister()
 }
 
 func initZK() {

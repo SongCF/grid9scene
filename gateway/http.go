@@ -13,7 +13,8 @@ import (
 )
 
 func HttpServer() {
-	addr := Conf.Get(SCT_HTTP, "http_server")
+	addr, err := Conf.Get(SCT_HTTP, "http_server")
+	CheckError(err)
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/app/{aid}", handleCreateApp).Methods("POST")
 	r.HandleFunc("/api/v1/app/{aid}", handleDeleteApp).Methods("DELETE")

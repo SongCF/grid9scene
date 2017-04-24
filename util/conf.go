@@ -1,7 +1,6 @@
 package util
 
 import (
-	log "github.com/Sirupsen/logrus"
 	. "github.com/Unknwon/goconfig"
 	"time"
 )
@@ -28,29 +27,12 @@ type Config struct {
 	c *ConfigFile
 }
 
-func (c *Config) GetInt(section, key string, dft int) int {
-	val, err := c.c.Int(section, key)
-	if err != nil {
-		log.Errorf("config get int error: key=[%v]%s, val=%s, err=%v", section, key, val, err)
-		return dft
-	}
-	return val
+func (c *Config) GetInt(section, key string) (int, error) {
+	return c.c.Int(section, key)
 }
-func (c *Config) Get(section, key string) string {
+func (c *Config) Get(section, key string) (string, error) {
 	// GetValue
-	value, err := c.c.GetValue(section, key)
-	if err != nil {
-		log.Errorf("Error when get config value([%v]%v), err = %v", section, key, err)
-		return ""
-	}
-	return value
-}
-func (c *Config) Gets(section string, keys []string) []string {
-	ret := make([]string, len(keys))
-	for i, k := range keys {
-		ret[i] = c.Get(section, k)
-	}
-	return ret
+	return c.c.GetValue(section, key)
 }
 
 func InitConf() {
@@ -63,9 +45,14 @@ func InitConf() {
 }
 
 func loadTcpConfig() {
+	var err error
 	//read write buf
-	ReadBufSize = Conf.GetInt(SCT_TCP, "tcp_read_buf", 2048)
-	WriteBufSize = Conf.GetInt(SCT_TCP, "tcp_write_buf", 2048)
+	ReadBufSize, err = Conf.GetInt(SCT_TCP, "tcp_read_buf")
+	CheckError(err)
+	WriteBufSize, err = Conf.GetInt(SCT_TCP, "tcp_write_buf")
+	CheckError(err)
 	//deadline
-	ReadDeadline = time.Duration(Conf.GetInt(SCT_TCP, "tcp_dead_time", 120)) * time.Second
+	dt, err := Conf.GetInt(SCT_TCP, "tcp_dead_time")
+	CheckError(err)
+	ReadDeadline = time.Duration(dt) * time.Second
 }

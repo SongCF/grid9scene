@@ -28,8 +28,6 @@ func HandleSignal() {
 			// waiting global server end.
 			// 1.tcp listener
 			// 2.session reader/sender/agent/conn
-			// 3.app/space/grid server
-			// 4. TODO unregister zookeeper
 			GlobalWG.Wait()
 			log.Info("shutdown.")
 			os.Exit(0)

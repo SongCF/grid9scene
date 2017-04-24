@@ -21,20 +21,17 @@ var (
 )
 
 func InitCache() {
-	addr := Conf.Get(SCT_CACHE, "cc_server")
-	if addr == "" {
-		panic("get cache server addr error")
-	}
-	auth := Conf.Get(SCT_CACHE, "cc_auth")
-	if auth == "" {
-		panic("get cache auth error")
-	}
-	db := Conf.GetInt(SCT_CACHE, "cc_db", -1)
-	if db == -1 {
-		panic("get cache db error")
-	}
-	size := Conf.GetInt(SCT_CACHE, "cc_max_open_conn", 2000)
-	idleTime := Conf.GetInt(SCT_CACHE, "cc_conn_idle_time", 60)
+	addr, err := Conf.Get(SCT_CACHE, "cc_server")
+	CheckError(err)
+	auth, err := Conf.Get(SCT_CACHE, "cc_auth")
+	CheckError(err)
+	db, err := Conf.GetInt(SCT_CACHE, "cc_db")
+	CheckError(err)
+	size, err := Conf.GetInt(SCT_CACHE, "cc_max_open_conn")
+	CheckError(err)
+	idleTime, err := Conf.GetInt(SCT_CACHE, "cc_conn_idle_time")
+	CheckError(err)
+
 	log.Infof("redis addr:%v, auth:%v, size:%v, idletime:%v", addr, auth, size, idleTime)
 
 	df := func(network, addr string) (*redis.Client, error) {
