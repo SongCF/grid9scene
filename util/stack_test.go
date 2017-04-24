@@ -12,6 +12,6 @@ func TestRecoverPanic(t *testing.T) {
 
 func errFunc() string {
 	defer RecoverPanic()
-	_ := 1 / 0
+	panic("test panic")
 	return "error"
 }

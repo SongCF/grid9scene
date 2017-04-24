@@ -1,9 +1,15 @@
 package util
 
-import "testing"
+import (
+	. "github.com/Unknwon/goconfig"
+	"testing"
+)
 
 func prepareConf() {
-	InitConf()
+	//InitConf()
+	c, err := LoadConfigFile("../" + confFile)
+	CheckError(err)
+	Conf = &Config{c: c}
 }
 
 func TestConfig_Get(t *testing.T) {
