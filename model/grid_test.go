@@ -9,7 +9,7 @@ func TestCalcGridId(t *testing.T) {
 	}
 	ret = CalcGridId(100.98, -23.5, 10, 10)
 	if ret != "10,-3" {
-		t.Error("2.calc grid id error")
+		t.Errorf("2.calc grid id error, ret:%v", ret)
 	}
 }
 

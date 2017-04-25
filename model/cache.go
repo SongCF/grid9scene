@@ -27,7 +27,7 @@ func InitCache() {
 	CheckError(err)
 	db, err := Conf.GetInt(SCT_CACHE, "cc_db")
 	CheckError(err)
-	size, err := Conf.GetInt(SCT_CACHE, "cc_max_open_conn")
+	size, err := Conf.GetInt(SCT_CACHE, "cc_conn_init_size")
 	CheckError(err)
 	idleTime, err := Conf.GetInt(SCT_CACHE, "cc_conn_idle_time")
 	CheckError(err)

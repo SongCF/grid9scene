@@ -36,6 +36,8 @@ s:
 
 
 # 单元测试
+test:
+	go test jhqc.com/songcf/scene/util jhqc.com/songcf/scene/model
 
 
 # 构建数据库
@@ -51,6 +53,6 @@ docker:
 
 
 
-.PHONY:deps clean clean-deps pb s db docker
+.PHONY:deps clean clean-deps pb s db test docker
 
 

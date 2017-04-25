@@ -3,11 +3,12 @@ package model
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"math"
 )
 
 func CalcGridId(posX, posY, w, h float32) string {
-	x := int32(posX / w)
-	y := int32(posY / h)
+	x := int32(math.Floor(float64(posX / w)))
+	y := int32(math.Floor(float64(posY / h)))
 	return GetGridId(x, y)
 }
 
