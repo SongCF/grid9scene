@@ -67,7 +67,7 @@ func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.E
 	raw := DB.QueryRow("SELECT grid_width,grid_height FROM space WHERE app_id=? and space_id=?;", appId, spaceId)
 	err := raw.Scan(&gridWidth, &gridHeight) // if empty, err = sql.ErrNoRows
 	if err == sql.ErrNoRows {
-		log.Infof("Space(%v:%v) doesn't exist", appId, spaceId)
+		log.Infof("Get Space(%v:%v) doesn't exist", appId, spaceId)
 		e = pb.ErrSpaceNotExist
 		return
 	}

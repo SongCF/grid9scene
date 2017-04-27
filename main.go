@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+var server_started bool = false
+
 func main() {
 	defer RecoverPanic()
 
@@ -36,6 +38,9 @@ func main() {
 
 	// register zk
 	initZK()
+
+	server_started = true
+	log.Info("server started!")
 
 	select {}
 

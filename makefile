@@ -38,6 +38,7 @@ s:
 # 单元测试
 test:
 	go test jhqc.com/songcf/scene/util jhqc.com/songcf/scene/model
+	go test
 
 
 # 构建数据库

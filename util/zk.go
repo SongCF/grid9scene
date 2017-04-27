@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type zkData struct {
+type ZkData struct {
 	URI string `json:"uri"`
 }
 
@@ -40,12 +40,12 @@ func Register() {
 
 	//tcp
 	zkTcpKey = fmt.Sprintf("%v/%v", regTcpUri, regTcpAddr)
-	zkTcpData, err = json.Marshal(zkData{URI: fmt.Sprintf("http://%v", regTcpAddr)})
+	zkTcpData, err = json.Marshal(ZkData{URI: fmt.Sprintf("%v", regTcpAddr)})
 	CheckError(err)
 	createNode(zkTcpKey, zkTcpData)
 	//http
 	zkHttpKey = fmt.Sprintf("%v/%v", regHttpUri, regHttpAddr)
-	zkHttpData, err = json.Marshal(zkData{URI: fmt.Sprintf("http://%v", regHttpAddr)})
+	zkHttpData, err = json.Marshal(ZkData{URI: fmt.Sprintf("http://%v", regHttpAddr)})
 	CheckError(err)
 	createNode(zkHttpKey, zkHttpData)
 

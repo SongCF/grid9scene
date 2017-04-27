@@ -12,7 +12,7 @@ var Conf *Config = nil
 var (
 	ReadBufSize                = 2048
 	WriteBufSize               = 2048
-	ReadDeadline time.Duration = 120 //second
+	ReadDeadline time.Duration = 120 * time.Second
 )
 
 const (

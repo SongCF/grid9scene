@@ -110,6 +110,12 @@ func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.Er
 		log.Errorf("GetUserData user(%v:%v) data parse array error: %v", appId, uid, resp.Err)
 		return nil, pb.ErrServerBusy
 	}
+	if l[0].IsType(redis.Nil) {
+		if !HasApp(appId) {
+			return nil, pb.ErrAppNotExist
+		}
+		return nil, pb.ErrUserOffline
+	}
 	spaceId, err0 := l[0].Str()
 	gridId, err1 := l[1].Str()
 	x, err2 := l[2].Float64()
@@ -118,8 +124,8 @@ func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.Er
 	moveTime, err5 := l[5].Int()
 	exd, err6 := l[6].Str()
 	if err0 != nil || err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil {
-		log.Errorf("GetUserData(user[%v:%v]) parse userInfo error(%v,%v,%v,%v,%v,%v,%v)",
-			appId, uid, err0, err1, err2, err3, err4, err5, err6)
+		log.Errorf("GetUserData(user[%v:%v]) parse userInfo error(%v,%v,%v,%v,%v,%v,%v), resp:%v",
+			appId, uid, err0, err1, err2, err3, err4, err5, err6, l)
 		return nil, pb.ErrServerBusy
 	}
 	return &UserInfo{
