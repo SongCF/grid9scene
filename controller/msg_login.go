@@ -29,12 +29,15 @@ func LoginReq(s *Session, m []byte) (int32, proto.Message) {
 	// kick out other session login by the uid if had
 	oldSess := GetSession(appId, uid)
 	if oldSess != nil {
+		//ntf
 		t := OFFLINE_TYPE_OTHER_LOGIN
 		offlineMsg := &pb.OfflineNtf{
 			Type: &t,
 		}
 		log.Infof("kick user(%v:%v) old session", oldSess.AppId, oldSess.Uid)
 		oldSess.Rsp(pb.CmdOfflineNtf, offlineMsg)
+		//clean cache
+		oldSess.Logout()
 	}
 	// set cache (init UserInfo in cache)
 	conn, err := CCPool.Get()

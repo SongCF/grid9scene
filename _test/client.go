@@ -3,6 +3,7 @@ package _test
 import (
 	"encoding/json"
 	"jhqc.com/songcf/scene/util"
+	"runtime/debug"
 	"testing"
 )
 
@@ -32,6 +33,14 @@ func StartClient(t *testing.T) {
 
 func check(err error, t *testing.T) {
 	if err != nil {
+		debug.PrintStack()
 		t.Fatal(err)
+	}
+}
+
+func assert(b bool, desc string, t *testing.T) {
+	if !b {
+		debug.PrintStack()
+		t.Fatal(desc)
 	}
 }

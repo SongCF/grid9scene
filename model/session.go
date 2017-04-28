@@ -60,6 +60,13 @@ func (s *Session) HasLogin() bool {
 	return false
 }
 
+func (s *Session) Logout() {
+	if s != nil {
+		s.AppId = ""
+		s.Uid = 0
+	}
+}
+
 func SetSession(appId string, uid int32, s *Session) {
 	SessionPool[fmt.Sprintf("%v:%v", appId, uid)] = s
 }
