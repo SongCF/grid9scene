@@ -38,9 +38,9 @@ func check(err error, t *testing.T) {
 	}
 }
 
-func assert(b bool, desc string, t *testing.T) {
+func assert(b bool, t *testing.T) {
 	if !b {
 		debug.PrintStack()
-		t.Fatal(desc)
+		t.Fatal()
 	}
 }

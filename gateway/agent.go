@@ -24,7 +24,7 @@ func agent(s *Session, in chan []byte) {
 				return
 			}
 			s.PacketCount++
-			log.Infof("req packCount:%v", s.PacketCount)
+			log.Debugf("req packCount:%v", s.PacketCount)
 			cmd, payload := handleMsg(s, msg)
 			s.Rsp(cmd, payload)
 		case <-minTimer:

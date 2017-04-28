@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/model"
@@ -37,7 +38,7 @@ func LoginReq(s *Session, m []byte) (int32, proto.Message) {
 		log.Infof("kick user(%v:%v) old session", oldSess.AppId, oldSess.Uid)
 		oldSess.Rsp(pb.CmdOfflineNtf, offlineMsg)
 		//clean cache
-		oldSess.Logout()
+		Logout(oldSess)
 	}
 	// set cache (init UserInfo in cache)
 	conn, err := CCPool.Get()
@@ -58,4 +59,16 @@ func LoginReq(s *Session, m []byte) (int32, proto.Message) {
 
 	rsp := &pb.LoginAck{}
 	return pb.CmdLoginAck, rsp
+}
+
+func Logout(s *Session) {
+	if s != nil {
+		// post leave
+		Leave(s, &pb.LeaveReq{})
+		// delete session
+		delete(SessionPool, fmt.Sprintf("%v:%v", s.AppId, s.Uid))
+		// clean session
+		s.AppId = ""
+		s.Uid = 0
+	}
 }

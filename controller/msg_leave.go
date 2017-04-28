@@ -88,9 +88,9 @@ func Leave(s *Session, payload *pb.LeaveReq) (int32, proto.Message) {
 			roundGridIdL := RoundGridAndSelf(userInfo.GridId)
 			uidL, e := GetRoundUidList(s.AppId, userInfo.SpaceId, roundGridIdL, s.Uid, conn)
 			if e != nil {
-				return pb.Error(pb.CmdLeaveReq, e)
+				//return pb.Error(pb.CmdLeaveReq, e)
+				return 0, nil //已经返回leave_ack了
 			}
-			log.Debugf("round uid list: %v", uidL)
 			leaveNtf := &pb.LeaveNtf{UserId: &s.Uid}
 			for _, uid := range uidL {
 				tSe := GetSession(s.AppId, uid)
@@ -109,6 +109,8 @@ func CloseSession(s *Session) {
 		case <-s.Die: //check already closed
 		default:
 			close(s.Die)
+			close(s.ChanOut)
+			s.ChanOut = nil
 			// post leave
 			Leave(s, &pb.LeaveReq{})
 			// delete session

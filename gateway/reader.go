@@ -43,26 +43,28 @@ func handleClient(conn net.Conn) {
 	go sender(&s)
 
 	//reader
-	readBuf := make([]byte, ReadBufSize)
+	const lenHead = 4
+	head := make([]byte, lenHead)
 	for {
 		conn.SetReadDeadline(time.Now().Add(ReadDeadline))
 
-		n, err := io.ReadAtLeast(conn, readBuf[:4], 4)
+		n, err := io.ReadFull(conn, head)
 		if err != nil {
 			log.Info("read header error:", err)
 			return
 		}
-		size := binary.BigEndian.Uint32(readBuf[:4])
+		size := binary.BigEndian.Uint32(head)
 
 		// read data
-		n, err = io.ReadAtLeast(conn, readBuf[:size], int(size))
+		data := make([]byte, size)
+		n, err = io.ReadFull(conn, data)
 		if err != nil {
 			log.Errorf("read payload failed, ip:%v reason:%v size:%v\n", s.IP, err, n)
 			return
 		}
 
 		select {
-		case in <- readBuf[:size]:
+		case in <- data:
 		case <-s.Die:
 			return
 		case <-GlobalDie:

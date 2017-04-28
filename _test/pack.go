@@ -3,6 +3,7 @@ package _test
 import (
 	"github.com/golang/protobuf/proto"
 	"jhqc.com/songcf/scene/pb"
+	"runtime/debug"
 	"testing"
 )
 
@@ -20,17 +21,21 @@ func login(appId string, uid int32, t *testing.T) []byte {
 	return pack(pb.CmdLoginReq, p, t)
 }
 
-func join(t *testing.T) []byte {
+func join(spaceId string, t *testing.T) []byte {
 	useLast := true
 	p := &pb.JoinReq{
-		SpaceId: []byte(T_SPACE_ID),
+		SpaceId: []byte(spaceId),
 		UseLast: &useLast,
 		ExData:  []byte(""),
 	}
 	return pack(pb.CmdJoinReq, p, t)
 }
 
-func leave(t *testing.T) []byte {
+func leave(spaceId string, t *testing.T) []byte {
+	p := &pb.LeaveReq{SpaceId: []byte(spaceId)}
+	return pack(pb.CmdLeaveReq, p, t)
+}
+func leaveOpt(t *testing.T) []byte {
 	p := &pb.LeaveReq{}
 	return pack(pb.CmdLeaveReq, p, t)
 }
@@ -80,6 +85,7 @@ func unpack(cmd int32, data []byte, t *testing.T) proto.Message {
 	cmd2 := packet.GetCmd()
 	payload := packet.GetPayload()
 	if cmd2 != cmd {
+		debug.PrintStack()
 		if cmd2 == pb.CmdErrorNtf {
 			p = &pb.ErrorNtf{}
 			err = proto.Unmarshal(payload, p)
@@ -118,6 +124,8 @@ func unpack(cmd int32, data []byte, t *testing.T) proto.Message {
 		p = &pb.ErrorNtf{}
 	case pb.CmdOfflineNtf:
 		p = &pb.OfflineNtf{}
+	case pb.CmdUserListNtf:
+		p = &pb.UserListNtf{}
 	default:
 		t.Fatalf("check unknown cmd:%v", cmd)
 	}
