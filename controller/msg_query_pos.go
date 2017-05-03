@@ -13,8 +13,10 @@ func QueryPosReq(s *Session, m []byte) (int32, proto.Message) {
 	if err != nil {
 		return pb.Error(pb.CmdQueryPosReq, pb.ErrMsgFormat)
 	}
-	if payload.UserId == nil {
-		return pb.Error(pb.CmdQueryPosReq, pb.ErrMissParam)
+
+	// check login
+	if !s.HasLogin() {
+		return pb.Error(pb.CmdLeaveReq, pb.ErrNotLogin)
 	}
 
 	//query cache

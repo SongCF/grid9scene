@@ -10,12 +10,10 @@ func TestScene(t *testing.T) {
 	// start server
 	go main()
 	// waiting started
-	for {
-		if server_started {
-			break
-		} else {
-			time.Sleep(time.Second * 1)
-		}
+	select {
+	case <-server_started:
+	case <-time.After(time.Second * 60):
+		t.Fatal("start server timeout!")
 	}
 	// start test client
 	_test.StartClient(t)

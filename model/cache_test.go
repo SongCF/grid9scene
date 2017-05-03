@@ -60,15 +60,15 @@ func TestCache(t *testing.T) {
 	}
 
 	// scene:app_id:user:uid  ->  {space_id,grid_id,x,y,angle,exd,node}
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 1), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 1), StrSpaceId, "1", StrGridId, "1")
 	if ret.Err != nil {
 		t.Errorf("HMSET error:%v", ret.Err)
 	}
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 2), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 2), StrSpaceId, "1", StrGridId, "1")
 	if ret.Err != nil {
 		t.Errorf("HMSET error:%v", ret.Err)
 	}
-	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 3), "space_id", "1", "grid_id", "1")
+	ret = CCPool.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, "test", 3), StrSpaceId, "1", StrGridId, "1")
 	if ret.Err != nil {
 		t.Errorf("HMSET error:%v", ret.Err)
 	}
@@ -77,7 +77,7 @@ func TestCache(t *testing.T) {
 		t.Errorf("DEL error:%v", ret.Err)
 	}
 
-	ret = CCPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "test", 1), "space_id", "grid_id")
+	ret = CCPool.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, "test", 1), StrSpaceId, StrGridId)
 	if ret.Err != nil {
 		t.Errorf("HMGET error:%v", ret.Err)
 	}

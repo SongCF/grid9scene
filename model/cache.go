@@ -100,7 +100,7 @@ func GetRoundUidList(appId, spaceId string, gridIdL *[]string, uid int32, conn *
 
 func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.ErrInfo) {
 	resp := conn.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, appId, uid),
-		"space_id", "grid_id", "x", "y", "angle", "move_time", "exd")
+		StrSpaceId, StrGridId, StrX, StrY, StrAngle, StrMoveTime, StrExData)
 	if resp.Err != nil {
 		log.Errorf("GetUserData user(%v:%v) data HMGET error: %v", appId, uid, resp.Err)
 		return nil, pb.ErrServerBusy
@@ -142,9 +142,9 @@ func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.Er
 func ResetUserInfo(appId string, uid int32, conn *redis.Client) *pb.ErrInfo {
 	// UserInfo
 	err := conn.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, appId, uid),
-		"space_id", NIL, "grid_id", NIL,
-		"x", DEFAULT_POS_X, "y", DEFAULT_POS_Y, "angle", DEFAULT_ANGLE,
-		"move_time", 0, "exd", "").Err
+		StrSpaceId, NIL, StrGridId, NIL,
+		StrX, DEFAULT_POS_X, StrY, DEFAULT_POS_Y, StrAngle, DEFAULT_ANGLE,
+		StrMoveTime, 0, StrExData, "").Err
 	if err != nil {
 		return pb.ErrServerBusy
 	}

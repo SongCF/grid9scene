@@ -21,7 +21,18 @@ func login(appId string, uid int32, t *testing.T) []byte {
 	return pack(pb.CmdLoginReq, p, t)
 }
 
-func join(spaceId string, t *testing.T) []byte {
+func join(spaceId string, x, y float32, t *testing.T) []byte {
+	useLast := false
+	p := &pb.JoinReq{
+		SpaceId: []byte(spaceId),
+		PosX:    &x,
+		PosY:    &y,
+		UseLast: &useLast,
+		ExData:  []byte(""),
+	}
+	return pack(pb.CmdJoinReq, p, t)
+}
+func joinLastPos(spaceId string, t *testing.T) []byte {
 	useLast := true
 	p := &pb.JoinReq{
 		SpaceId: []byte(spaceId),

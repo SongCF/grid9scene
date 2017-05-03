@@ -52,12 +52,12 @@ func Leave(s *Session, payload *pb.LeaveReq) (int32, proto.Message) {
 				log.Errorf("LeaveReq(user[%v:%v]) Cache Cmd(SREM) error(%v)", s.AppId, s.Uid, err)
 				return pb.Error(pb.CmdLeaveReq, pb.ErrServerBusy)
 			}
-			//2. set user hash table
-			e := ResetUserInfo(s.AppId, s.Uid, conn)
-			if e != nil {
-				log.Errorf("LeaveReq(user[%v:%v]) ResetUserInfo error(%v)", s.AppId, s.Uid, err)
+			//2. del user hash table
+			err := conn.Cmd("DEL", fmt.Sprintf(FORMAT_USER, s.AppId, s.Uid)).Err
+			if err != nil {
 				return pb.Error(pb.CmdLeaveReq, pb.ErrServerBusy)
 			}
+			//exec
 			err = conn.Cmd("EXEC").Err
 			if err != nil {
 				log.Errorf("LeaveReq(user[%v:%v]) Cache Cmd(EXEC) error(%v)", s.AppId, s.Uid, err)

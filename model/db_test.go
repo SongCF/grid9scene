@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"jhqc.com/songcf/scene/_test"
 	. "jhqc.com/songcf/scene/util"
 	"testing"
 )
@@ -11,7 +10,10 @@ func TestDB(t *testing.T) {
 	InitConfTest("../conf.ini")
 	InitDB()
 
-	CreateApp(_test.T_APP_ID, "test_name", "test_key")
+	var app_id = "test_app_id"
+	var space_id = "test_space_id"
+
+	CreateApp(app_id, "test_name", "test_key")
 
 	rows, err := DB.Query("SELECT * FROM app;")
 	defer rows.Close()
@@ -31,10 +33,9 @@ func TestDB(t *testing.T) {
 		t.Errorf("insert err:%v", err)
 	}
 
-	CreateSpace(_test.T_APP_ID, _test.T_SPACE_ID, float32(10), float32(10))
+	CreateSpace(app_id, space_id, float32(10), float32(10))
 
-	raw := DB.QueryRow("SELECT grid_width,grid_height FROM space WHERE app_id=? and space_id=?;",
-		_test.T_APP_ID, _test.T_SPACE_ID)
+	raw := DB.QueryRow("SELECT grid_width,grid_height FROM space WHERE app_id=? and space_id=?;", app_id, space_id)
 	var w, h float32
 	err = raw.Scan(&w, &h) // if empty, err = sql.ErrNoRows
 	if err != nil {

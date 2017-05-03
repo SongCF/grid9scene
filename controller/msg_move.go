@@ -37,7 +37,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 	// move time
 	if payload.GetTime() < oldUserInfo.MoveTime {
 		//ignore
-		log.Infof("ignore move_req, req_time=%d, already_time=%d\n", payload.GetTime(), oldUserInfo.MoveTime)
+		log.Infof("ignore move_req, req_time=%d, already_time=%d", payload.GetTime(), oldUserInfo.MoveTime)
 		return 0, nil
 	}
 	x := payload.GetPosX()
@@ -70,7 +70,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		}
 		//2. set user hash table
 		err = conn.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, s.AppId, s.Uid),
-			"grid_id", dstGridId, "x", x, "y", y, "angle", angle, "moveTime", oldUserInfo.MoveTime+1).Err
+			StrGridId, dstGridId, StrX, x, StrY, y, StrAngle, angle, StrMoveTime, payload.GetTime()).Err
 		if err != nil {
 			log.Errorf("MoveReq(user[%v:%v]) Cache Cmd(HMSET) error(%v)", s.AppId, s.Uid, err)
 			return pb.Error(pb.CmdMoveReq, pb.ErrServerBusy)
@@ -82,7 +82,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		}
 	} else {
 		err = conn.Cmd("HMSET", fmt.Sprintf(FORMAT_USER, s.AppId, s.Uid),
-			"x", x, "y", y, "angle", angle, "moveTime", oldUserInfo.MoveTime+1).Err
+			StrX, x, StrY, y, StrAngle, angle, StrMoveTime, payload.GetTime()).Err
 		if err != nil {
 			log.Errorf("MoveReq(user[%v:%v]) Cache Cmd(HMSET) error(%v)", s.AppId, s.Uid, err)
 			return pb.Error(pb.CmdMoveReq, pb.ErrServerBusy)
@@ -98,11 +98,12 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 	s.Rsp(pb.CmdMoveAck, ack)
 	//move_ntf
 	roundGridIdL := RoundGridAndSelf(srcGridId)
-	uidL, e := GetRoundUidList(s.AppId, srcGridId, roundGridIdL, s.Uid, conn)
+	uidL, e := GetRoundUidList(s.AppId, spaceId, roundGridIdL, s.Uid, conn)
 	if e != nil {
 		return pb.Error(pb.CmdMoveReq, e)
 	}
 	log.Debugf("round uid list: %v", uidL)
+
 	moveNtf := &pb.MoveNtf{
 		UserId: &s.Uid,
 		PosX:   &x,
@@ -121,7 +122,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		leaveGrids := SubGrids(oldRoundGrids, newRoundGrids)
 		joinGrids := SubGrids(newRoundGrids, oldRoundGrids)
 		//leave cur grid
-		leaveNtfUidL, e := GetRoundUidList(s.AppId, srcGridId, leaveGrids, s.Uid, conn)
+		leaveNtfUidL, e := GetRoundUidList(s.AppId, spaceId, leaveGrids, s.Uid, conn)
 		if e != nil {
 			return pb.Error(pb.CmdMoveReq, e)
 		}
@@ -132,7 +133,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 			tSe.Rsp(pb.CmdLeaveNtf, leaveNtf)
 		}
 		//join dst grid
-		joinNtfUidL, e := GetRoundUidList(s.AppId, srcGridId, joinGrids, s.Uid, conn)
+		joinNtfUidL, e := GetRoundUidList(s.AppId, spaceId, joinGrids, s.Uid, conn)
 		if e != nil {
 			return pb.Error(pb.CmdMoveReq, e)
 		}
@@ -150,7 +151,8 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		}
 		// ntf user list
 		for _, id := range joinNtfUidL {
-			conn.PipeAppend("HMGET", fmt.Sprintf(FORMAT_USER, s.AppId, id), "x", "y", "angle", "exd")
+			conn.PipeAppend("HMGET", fmt.Sprintf(FORMAT_USER, s.AppId, id),
+				StrX, StrY, StrAngle, StrExData)
 		}
 		ul := make([]*pb.UserData, len(joinNtfUidL))
 		for i, uid := range joinNtfUidL {

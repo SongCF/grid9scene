@@ -1,19 +1,21 @@
 package model
 
 import (
-	"jhqc.com/songcf/scene/_test"
 	"testing"
 )
 
 func TestSetGetSession(t *testing.T) {
+	var app_id = "test_app_id"
+	var uid = int32(1)
+
 	var s Session
-	s.AppId = _test.T_APP_ID
-	s.Uid = _test.T_USER_ID
+	s.AppId = app_id
+	s.Uid = uid
 	if !s.HasLogin() {
 		t.Error("user has login error")
 	}
-	SetSession(_test.T_APP_ID, _test.T_USER_ID, &s)
-	if &s != GetSession(_test.T_APP_ID, _test.T_USER_ID) {
+	SetSession(app_id, uid, &s)
+	if &s != GetSession(app_id, uid) {
 		t.Error("get session error")
 	}
 }

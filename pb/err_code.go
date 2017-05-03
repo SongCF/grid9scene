@@ -54,8 +54,6 @@ var (
 	ErrMsgFormat = &ErrInfo{Id: 10070401, Desc: "error message format"}
 	//%% 未知消息
 	//unknown_msg()-> {10070402, <<"unknown message">>}.
-	//缺少参数
-	ErrMissParam = &ErrInfo{Id: 10070403, Desc: "Missing parameter"}
 
 	//不支持的协议/方法
 	ErrCmdNotSupport = &ErrInfo{Id: 10070404, Desc: "cmd not support"}

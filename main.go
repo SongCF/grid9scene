@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var server_started bool = false
+var server_started = make(chan struct{})
 
 func main() {
 	defer RecoverPanic()
@@ -39,7 +39,7 @@ func main() {
 	// register zk
 	initZK()
 
-	server_started = true
+	close(server_started)
 	log.Info("server started!")
 
 	select {}

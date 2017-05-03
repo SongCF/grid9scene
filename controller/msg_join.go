@@ -37,10 +37,10 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 
 	// check already join
 	oldUserInfo, e := GetUserInfo(s.AppId, s.Uid, conn)
-	if e != nil {
+	if e != nil && e != pb.ErrUserOffline {
 		return pb.Error(pb.CmdJoinReq, e)
 	}
-	if joinSpaceId == oldUserInfo.SpaceId {
+	if oldUserInfo != nil && joinSpaceId == oldUserInfo.SpaceId {
 		return pb.Error(pb.CmdJoinReq, pb.ErrAlreadyJoinSpace)
 	}
 
@@ -59,7 +59,7 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 	}
 	//1. add to grid set
 	joinSet := fmt.Sprintf(FORMAT_GRID, s.AppId, joinSpaceId, joinGridId)
-	if oldUserInfo.SpaceId != NIL {
+	if oldUserInfo != nil && oldUserInfo.SpaceId != NIL {
 		leaveSet := fmt.Sprintf(FORMAT_GRID, s.AppId, oldUserInfo.SpaceId, oldUserInfo.GridId)
 		err = conn.Cmd("SMOVE", leaveSet, joinSet, s.Uid).Err
 	} else {
@@ -71,8 +71,8 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 	}
 	//2. set user hash table
 	uKey := fmt.Sprintf(FORMAT_USER, s.AppId, s.Uid)
-	err = conn.Cmd("HMSET", uKey, "space_id", joinSpaceId, "grid_id", joinGridId,
-		"x", x, "y", y, "angle", angle, "exd", string(payload.ExData), "moveTime", 0).Err
+	err = conn.Cmd("HMSET", uKey, StrSpaceId, joinSpaceId, StrGridId, joinGridId,
+		StrX, x, StrY, y, StrAngle, angle, StrExData, string(payload.ExData), StrMoveTime, 0).Err
 	if err != nil {
 		log.Errorf("JoinReq(user[%v:%v]) Cache Cmd(HMSET) error(%v)", s.AppId, s.Uid, err)
 		return pb.Error(pb.CmdJoinReq, pb.ErrServerBusy)
@@ -96,9 +96,9 @@ func JoinReq(s *Session, m []byte) (int32, proto.Message) {
 	if e != nil {
 		return pb.Error(pb.CmdJoinReq, e)
 	}
-	log.Debugf("round uid list: %v", uidL)
 	for _, id := range uidL {
-		conn.PipeAppend("HMGET", fmt.Sprintf(FORMAT_USER, s.AppId, id), "x", "y", "angle", "exd")
+		conn.PipeAppend("HMGET", fmt.Sprintf(FORMAT_USER, s.AppId, id),
+			StrX, StrY, StrAngle, StrExData)
 	}
 	ul := make([]*pb.UserData, len(uidL))
 	for i, uid := range uidL {
