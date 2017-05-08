@@ -489,7 +489,7 @@ func getMsg(ch chan []byte, t *testing.T) []byte {
 	select {
 	case m := <-ch:
 		return m
-	case <-time.After(time.Second * 2):
+	case <-time.After(time.Second * 5):
 		debug.PrintStack()
 		t.Fatal("get channel msg timeout")
 		return nil
@@ -500,7 +500,7 @@ func getNilMsg(ch chan []byte, t *testing.T) {
 	case m := <-ch:
 		debug.PrintStack()
 		t.Fatalf("get channel unexpect msg:%v", m)
-	case <-time.After(time.Second * 2):
+	case <-time.After(time.Second * 5):
 	}
 }
 
