@@ -8,7 +8,7 @@
 在内网jenkins上选择项目`scene_go`，点击构建，构建成功后，会以docker镜像的方式上传到我们的docker私有仓库。
 
 # 部署
-1. 从私有仓库pull最新的镜像 `docker pull 139.198.2.55/soalib/scene:1.0_xxx`
+1. 从私有仓库pull最新的镜像 `docker pull jhhub.com/soalib/scene:1.0_xxx`
 2. 启动
 
 ```
