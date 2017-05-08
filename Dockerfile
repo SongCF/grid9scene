@@ -1,4 +1,4 @@
-FROM 139.198.2.55/soalib/golang:1.8
+FROM golang:1.8
 
 MAINTAINER Docker SongCF <fuxiao333@qq.com>
 
