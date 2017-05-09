@@ -5,7 +5,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"io"
 	. "jhqc.com/songcf/scene/controller"
-	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
 	"net"

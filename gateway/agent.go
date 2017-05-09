@@ -4,16 +4,15 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/controller"
-	"jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	"jhqc.com/songcf/scene/pb"
-	"jhqc.com/songcf/scene/util"
+	. "jhqc.com/songcf/scene/util"
 	"time"
 )
 
 func agent(s *Session, in chan []byte) {
 	defer log.Debug("---session agent end.")
-	defer util.RecoverPanic()
+	defer RecoverPanic()
 	defer CloseSession(s)
 
 	minTimer := time.After(time.Minute)
@@ -31,14 +30,14 @@ func agent(s *Session, in chan []byte) {
 			minTimer = time.After(time.Minute)
 		case <-s.Die:
 			return
-		case <-global.GlobalDie:
+		case <-GlobalDie:
 			return
 		}
 	}
 }
 
 func handleMsg(s *Session, m []byte) (int32, proto.Message) {
-	defer util.RecoverPanic()
+	defer RecoverPanic()
 	if s == nil {
 		return pb.Error(0, pb.ErrUser)
 	}

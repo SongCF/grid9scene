@@ -59,6 +59,7 @@ func TCPStressTest() {
 	for i := 0; i < num; i++ {
 		beginClient(int32(idx + i))
 	}
+	select {}
 }
 
 func beginClient(uid int32) {

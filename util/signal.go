@@ -1,4 +1,4 @@
-package global
+package util
 
 import (
 	log "github.com/Sirupsen/logrus"

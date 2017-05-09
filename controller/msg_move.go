@@ -124,7 +124,6 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		if e != nil {
 			return pb.Error(pb.CmdMoveReq, e)
 		}
-		log.Debugf("leave ntf uid list: %v", leaveNtfUidL)
 		leaveNtf := &pb.LeaveNtf{UserId: &s.Uid}
 		for _, uid := range leaveNtfUidL {
 			tSe := GetSession(s.AppId, uid)
@@ -135,7 +134,6 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		if e != nil {
 			return pb.Error(pb.CmdMoveReq, e)
 		}
-		log.Debugf("join ntf uid list: %v", joinNtfUidL)
 		joinNtf := &pb.JoinNtf{User: &pb.UserData{
 			UserId: &s.Uid,
 			PosX:   &x,

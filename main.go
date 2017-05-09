@@ -3,7 +3,6 @@ package main
 import (
 	log "github.com/Sirupsen/logrus"
 	. "jhqc.com/songcf/scene/gateway"
-	. "jhqc.com/songcf/scene/global"
 	. "jhqc.com/songcf/scene/model"
 	. "jhqc.com/songcf/scene/util"
 	"os"
