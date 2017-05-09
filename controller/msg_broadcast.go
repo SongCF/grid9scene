@@ -35,7 +35,6 @@ func BroadcastReq(s *Session, m []byte) (int32, proto.Message) {
 		if e != nil {
 			return pb.Error(pb.CmdBroadcastReq, e)
 		}
-		log.Debugf("round uid list: %v", uidL)
 		//ack
 		ack := &pb.BroadcastAck{}
 		s.Rsp(pb.CmdBroadcastAck, ack)

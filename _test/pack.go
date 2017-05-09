@@ -4,24 +4,25 @@ import (
 	"github.com/golang/protobuf/proto"
 	"jhqc.com/songcf/scene/pb"
 	"runtime/debug"
-	"testing"
+	"errors"
+	"fmt"
 )
 
-func heartbeat(t *testing.T) []byte {
+func heartbeat() []byte {
 	p := &pb.HeartbeatReq{}
-	return pack(pb.CmdHeartbeatReq, p, t)
+	return pack(pb.CmdHeartbeatReq, p)
 }
 
-func login(appId string, uid int32, t *testing.T) []byte {
+func login(appId string, uid int32) []byte {
 	p := &pb.LoginReq{
 		AppId:     []byte(appId),
 		UserId:    &uid,
 		UserToken: []byte("token"),
 	}
-	return pack(pb.CmdLoginReq, p, t)
+	return pack(pb.CmdLoginReq, p)
 }
 
-func join(spaceId string, x, y float32, t *testing.T) []byte {
+func join(spaceId string, x, y float32) []byte {
 	useLast := false
 	p := &pb.JoinReq{
 		SpaceId: []byte(spaceId),
@@ -30,28 +31,28 @@ func join(spaceId string, x, y float32, t *testing.T) []byte {
 		UseLast: &useLast,
 		ExData:  []byte(""),
 	}
-	return pack(pb.CmdJoinReq, p, t)
+	return pack(pb.CmdJoinReq, p)
 }
-func joinLastPos(spaceId string, t *testing.T) []byte {
+func joinLastPos(spaceId string) []byte {
 	useLast := true
 	p := &pb.JoinReq{
 		SpaceId: []byte(spaceId),
 		UseLast: &useLast,
 		ExData:  []byte(""),
 	}
-	return pack(pb.CmdJoinReq, p, t)
+	return pack(pb.CmdJoinReq, p)
 }
 
-func leave(spaceId string, t *testing.T) []byte {
+func leave(spaceId string) []byte {
 	p := &pb.LeaveReq{SpaceId: []byte(spaceId)}
-	return pack(pb.CmdLeaveReq, p, t)
+	return pack(pb.CmdLeaveReq, p)
 }
-func leaveOpt(t *testing.T) []byte {
+func leaveOpt() []byte {
 	p := &pb.LeaveReq{}
-	return pack(pb.CmdLeaveReq, p, t)
+	return pack(pb.CmdLeaveReq, p)
 }
 
-func move(time int32, x, y float32, t *testing.T) []byte {
+func move(time int32, x, y float32) []byte {
 	var a float32 = 0
 	p := &pb.MoveReq{
 		PosX:  &x,
@@ -59,40 +60,40 @@ func move(time int32, x, y float32, t *testing.T) []byte {
 		Angle: &a,
 		Time:  &time,
 	}
-	return pack(pb.CmdMoveReq, p, t)
+	return pack(pb.CmdMoveReq, p)
 }
 
-func broadcast(t *testing.T) []byte {
+func broadcast() []byte {
 	p := &pb.BroadcastReq{Data: []byte("test-broadcast-data")}
-	return pack(pb.CmdBroadcastReq, p, t)
+	return pack(pb.CmdBroadcastReq, p)
 }
 
-func querypos(uid int32, t *testing.T) []byte {
+func querypos(uid int32) []byte {
 	p := &pb.QueryPosReq{UserId: &uid}
-	return pack(pb.CmdQueryPosReq, p, t)
+	return pack(pb.CmdQueryPosReq, p)
 }
 
-func pack(cmd int32, p proto.Message, t *testing.T) []byte {
+func pack(cmd int32, p proto.Message) []byte {
 	var vsn int32 = 1
 	pl, err := proto.Marshal(p)
-	check(err, t)
+	check(err, "pack marshal payload failed:")
 	req := &pb.Packet{
 		Cmd:     &cmd,
 		Vsn:     &vsn,
 		Payload: pl,
 	}
 	data, err := proto.Marshal(req)
-	check(err, t)
+	check(err, "pack marshal packet failed:")
 	return data
 }
 
-func unpack(cmd int32, data []byte, t *testing.T) proto.Message {
+func unpack(cmd int32, data []byte) proto.Message {
 	var err error
 	var p proto.Message
 	// parse
 	packet := &pb.Packet{}
 	err = proto.Unmarshal(data, packet)
-	check(err, t)
+	check(err, "unpack unmarshal packet failed:")
 	cmd2 := packet.GetCmd()
 	payload := packet.GetPayload()
 	if cmd2 != cmd {
@@ -100,12 +101,12 @@ func unpack(cmd int32, data []byte, t *testing.T) proto.Message {
 		if cmd2 == pb.CmdErrorNtf {
 			p = &pb.ErrorNtf{}
 			err = proto.Unmarshal(payload, p)
-			if err != nil {
-				t.Fatalf("parse error_ntf failed, err=%v", err)
-			}
-			t.Fatalf("check pb error, error_ntf=%v\n", p)
+			check(err, "parse error_ntf failed")
+			err = errors.New(fmt.Sprintf("check pb error, error_ntf=%v\n", p))
+			check(err, "")
 		} else {
-			t.Fatalf("check pb error, cmd=%v, packCmd=%v\n", cmd, cmd2)
+			err = errors.New(fmt.Sprintf("check pb error, cmd=%v, packCmd=%v\n", cmd, cmd2))
+			check(err, "")
 		}
 	}
 	switch cmd {
@@ -138,9 +139,10 @@ func unpack(cmd int32, data []byte, t *testing.T) proto.Message {
 	case pb.CmdUserListNtf:
 		p = &pb.UserListNtf{}
 	default:
-		t.Fatalf("check unknown cmd:%v", cmd)
+		err = errors.New(fmt.Sprintf("check unknown cmd:%v", cmd))
+		check(err, "")
 	}
 	err = proto.Unmarshal(payload, p)
-	check(err, t)
+	check(err, "unpack unmarshal payload failed:")
 	return p
 }

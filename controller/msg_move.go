@@ -102,8 +102,6 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 	if e != nil {
 		return pb.Error(pb.CmdMoveReq, e)
 	}
-	log.Debugf("round uid list: %v", uidL)
-
 	moveNtf := &pb.MoveNtf{
 		UserId: &s.Uid,
 		PosX:   &x,

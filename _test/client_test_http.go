@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func testAllAPI(addr string, t *testing.T) {
+func TestAllAPI(addr string, t *testing.T) {
 	fmt.Println("http addr: ", addr)
 	var err error
 	//清理
@@ -79,14 +79,14 @@ func testAllAPI(addr string, t *testing.T) {
 	}
 }
 
-func initAppSpace(addr string, t *testing.T) {
+func initAppSpace(addr string) {
 	err := createApp(addr)
 	if err != nil && err.Error() != pb.ErrAppAlreadyExist.Desc {
-		t.Fatal(err)
+		panic(err)
 	}
 	err = createSpace(addr)
 	if err != nil && err.Error() != pb.ErrSpaceAlreadyExist.Desc {
-		t.Fatal(err)
+		panic(err)
 	}
 }
 
