@@ -34,11 +34,11 @@ func TestSession(t *testing.T) {
 func TestSpace(t *testing.T) {
 	var app_id = "test_app_id"
 	var space_id = "test_space_id"
-	var x,y = float32(10), float32(10)
+	var x, y = float32(10), float32(10)
 	if getSpace(app_id, space_id) != nil {
 		t.Fatal("get nil space error")
 	}
-	s := &SpaceInfo{GridWidth:x, GridHeight:y}
+	s := &SpaceInfo{GridWidth: x, GridHeight: y}
 	setSpace(app_id, space_id, s)
 	if s != getSpace(app_id, space_id) {
 		t.Fatal("set get space error")
@@ -52,4 +52,3 @@ func TestSpace(t *testing.T) {
 		t.Fatal("del get nil space error")
 	}
 }
-

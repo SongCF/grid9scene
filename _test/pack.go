@@ -1,11 +1,11 @@
 package _test
 
 import (
+	"errors"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"jhqc.com/songcf/scene/pb"
 	"runtime/debug"
-	"errors"
-	"fmt"
 )
 
 func heartbeat() []byte {

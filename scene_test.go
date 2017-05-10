@@ -1,11 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"jhqc.com/songcf/scene/_test"
 	"jhqc.com/songcf/scene/util"
 	"testing"
 	"time"
-	"encoding/json"
 )
 
 func TestScene(t *testing.T) {

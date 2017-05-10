@@ -20,7 +20,6 @@ type Session struct {
 	ConnectTime time.Time
 }
 
-
 func (s *Session) Rsp(cmd int32, payload proto.Message) {
 	if s == nil {
 		return
@@ -45,6 +44,7 @@ func (s *Session) Rsp(cmd int32, payload proto.Message) {
 		return
 	}
 	if s != nil && s.ChanOut != nil {
+		log.Debugf("ack msg: %v", pb.RCode[int(cmd)])
 		s.ChanOut <- data
 	}
 }

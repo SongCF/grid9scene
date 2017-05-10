@@ -2,26 +2,18 @@ package _test
 
 import (
 	"fmt"
+	"jhqc.com/songcf/scene/pb"
+	"jhqc.com/songcf/scene/util"
+	"math/rand"
+	"net"
 	"os"
 	"strconv"
-	"jhqc.com/songcf/scene/pb"
-	"math/rand"
 	"time"
-	"net"
 )
 
 //模拟客户端行为，以tcp链接服务器，每隔 min_interval ~ max_interval 秒像服务器发送一条请求，
 //链接服务器后，login 然后 join T_SPACE_ID 场景中，之后只发送 move_req, broadcast_req 两种消息，
 //每个 leave_time 秒，下线部分客户端，然后重新上线
-
-
-const (
-	tcp_server = ":9901"
-	http_server = "http://127.0.0.1:9911"
-	min_interval = 0.3
-	max_interval = 3.0
-)
-
 
 type Client struct {
 	R chan []byte
@@ -30,8 +22,7 @@ type Client struct {
 
 var clientList = map[int32]*Client{}
 
-
-func TCPStressTest() {
+func TCPStressTest(httpServer, tcpServer string, minInterval, maxInterval float32) {
 	defer RecoverPanic()
 	argNum := len(os.Args)
 	if argNum != 3 {
@@ -50,24 +41,24 @@ func TCPStressTest() {
 	}
 
 	//init app space
-	initAppSpace(http_server)
+	initAppSpace(httpServer)
 
 	//设置随机数种子
 	rand.Seed(int64(time.Now().Nanosecond()))
 
 	//启动客户端
 	for i := 0; i < num; i++ {
-		beginClient(int32(idx + i))
+		util.GlobalWG.Add(1)
+		beginClient(int32(idx+i), tcpServer, minInterval, maxInterval)
 	}
-	select {}
 }
 
-func beginClient(uid int32) {
-	conn, err := net.Dial("tcp", tcp_server)
+func beginClient(uid int32, addr string, minInterval, maxInterval float32) {
+	conn, err := net.Dial("tcp", addr)
 	check(err, "dial server failed:")
-	wCh := make(chan []byte)
+	wCh := make(chan []byte, 100)
 	go clientWriter(wCh, conn)
-	rCh := make(chan []byte)
+	rCh := make(chan []byte, 100)
 	go clientReader(rCh, conn)
 
 	//正常登陆
@@ -82,7 +73,7 @@ func beginClient(uid int32) {
 	//user list
 	checkRspMsg(rCh, pb.CmdUserListNtf)
 
-	go clientTimer(uid, &Client{W:wCh, R:rCh})
+	go clientTimer(uid, &Client{W: wCh, R: rCh}, minInterval, maxInterval)
 }
 
 func endClient(uid int32) {
@@ -101,29 +92,31 @@ func clientWriter(wCh chan []byte, conn net.Conn) {
 	defer RecoverPanic()
 	writer(wCh, conn)
 }
-func clientTimer(uid int32, c *Client) {
+func clientTimer(uid int32, c *Client, minInterval, maxInterval float32) {
 	defer RecoverPanic()
+	defer util.GlobalWG.Done()
 	defer endClient(uid)
 	clientList[uid] = c
 	for {
-		t := min_interval + rand.Float32() * (max_interval - min_interval)
-		<- time.After(time.Millisecond * time.Duration(int(t * 1000)))
+		t := minInterval + rand.Float32()*(maxInterval-minInterval)
+		select {
+		case <-time.After(time.Millisecond * time.Duration(int(t*1000))):
+		case <-util.GlobalDie:
+			return
+		}
 		ackCmd, data := randMsg()
 		c.W <- data
 		checkRspMsg(c.R, ackCmd)
 	}
 }
 
-
-
 //======================================================
 //======================================================
 //======================================================
-
 
 func randPos() (float32, float32) {
-	x := rand.Float32() * 10000  //[0.0,1.0)
-	y := rand.Float32() * 10000  //[0.0,1.0)
+	x := rand.Float32() * 10000 //[0.0,1.0)
+	y := rand.Float32() * 10000 //[0.0,1.0)
 	return x, y
 }
 
@@ -131,10 +124,10 @@ func randPos() (float32, float32) {
 func randMsg() (int32, []byte) {
 	n := rand.Intn(10) //[0,10)
 	switch n {
-	case 0:   // 10% broadcast
+	case 0: // 10% broadcast
 		return pb.CmdBroadcastAck, broadcast()
-	default:  // 90% move
-		x,y := randPos()
+	default: // 90% move
+		x, y := randPos()
 		return pb.CmdMoveAck, move(0, x, y)
 	}
 }

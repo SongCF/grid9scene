@@ -1,36 +1,37 @@
 package model
 
 import (
-	"sync"
-	"jhqc.com/songcf/scene/pb"
 	"database/sql"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"jhqc.com/songcf/scene/pb"
+	"sync"
+	"time"
 )
 
-
 type App struct {
-	SsMutex sync.RWMutex
+	SsMutex  sync.RWMutex `json:"-"`
 	SessionM map[int32]*Session
 
-	SpaceMutex sync.RWMutex
-	SpaceM map[string]*SpaceInfo
+	SpaceMutex sync.RWMutex `json:"-"`
+	SpaceM     map[string]*SpaceInfo
 }
 
-var appMutex sync.RWMutex
+var appPoolMutex sync.RWMutex
 var appPool = map[string]*App{}
-func GetAppPool() *map[string]*App {
-	return &appPool
-}
 
+//=====================================================
+//app
+//=====================================================
 
 func getApp(appId string) *App {
-	appMutex.RLock()
+	appPoolMutex.RLock()
 	app, ok := appPool[appId]
-	appMutex.RUnlock() //下面setApp会加锁，所以这里不要用defer
+	appPoolMutex.RUnlock() //下面setApp会加锁，所以这里不要用defer
 	if !ok {
 		app = &App{
-			SessionM:make(map[int32]*Session),
-			SpaceM:make(map[string]*SpaceInfo),
+			SessionM: make(map[int32]*Session),
+			SpaceM:   make(map[string]*SpaceInfo),
 		}
 		setApp(appId, app)
 	}
@@ -38,16 +39,20 @@ func getApp(appId string) *App {
 }
 func setApp(appId string, app *App) {
 	if app != nil {
-		appMutex.Lock()
-		defer appMutex.Unlock()
+		appPoolMutex.Lock()
+		defer appPoolMutex.Unlock()
 		appPool[appId] = app
 	}
 }
 func DelApp(appId string) {
-	appMutex.Lock()
-	defer appMutex.Unlock()
+	appPoolMutex.Lock()
+	defer appPoolMutex.Unlock()
 	delete(appPool, appId)
 }
+
+//=====================================================
+//session
+//=====================================================
 
 func SetSession(appId string, uid int32, s *Session) {
 	app := getApp(appId)
@@ -72,6 +77,45 @@ func DelSession(appId string, uid int32) {
 	delete(app.SessionM, uid)
 }
 
+//调试用:获取关心的session信息
+func GetAllSession() *map[string]string {
+	m := make(map[string]string)
+	appPoolMutex.RLock()
+	defer appPoolMutex.RUnlock()
+	for tAppId, tApp := range appPool {
+		tApp.SsMutex.RLock()
+		for tUid, tSs := range tApp.SessionM {
+			m[fmt.Sprintf("%v:%v", tAppId, tUid)] =
+				fmt.Sprintf("pk_count:%v, ip:%v, conn_time:%v", tSs.PacketCount, tSs.IP, tSs.ConnectTime)
+		}
+		tApp.SsMutex.RUnlock()
+	}
+	return &m
+}
+
+//调试用：获取所有session的数量，数据包总计，链接总时间毫秒
+func GetAllSessionMsgAvg() (int, int, int) {
+	pkCount := 0
+	timeAll := time.Time{}
+	ssNum := 0
+	appPoolMutex.RLock()
+	defer appPoolMutex.RUnlock()
+	for _, tApp := range appPool {
+		tApp.SsMutex.RLock()
+		for _, tSs := range tApp.SessionM {
+			pkCount += int(tSs.PacketCount)
+			timeAll = timeAll.Add(time.Now().Sub(tSs.ConnectTime))
+			ssNum++
+		}
+		tApp.SsMutex.RUnlock()
+	}
+	return ssNum, pkCount, timeAll.Nanosecond() / 1000000
+}
+
+//=====================================================
+//space
+//=====================================================
+
 func setSpace(appId, spaceId string, s *SpaceInfo) {
 	app := getApp(appId)
 	app.SpaceMutex.Lock()
@@ -94,7 +138,6 @@ func DelSpace(appId, spaceId string) {
 	defer app.SpaceMutex.Unlock()
 	delete(app.SpaceM, spaceId)
 }
-
 
 func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.ErrInfo) {
 	if sp := getSpace(appId, spaceId); sp != nil {
@@ -122,5 +165,3 @@ func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.E
 	setSpace(appId, spaceId, s)
 	return
 }
-
-

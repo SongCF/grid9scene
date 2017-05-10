@@ -1,15 +1,15 @@
 package _test
 
 import (
-	"strings"
-	"io"
 	"encoding/binary"
-	"net"
-	"time"
-	"fmt"
 	"errors"
-	"jhqc.com/songcf/scene/pb"
+	"fmt"
 	"github.com/golang/protobuf/proto"
+	"io"
+	"jhqc.com/songcf/scene/pb"
+	"net"
+	"strings"
+	"time"
 )
 
 func startClient(tcpAddr string) (chan []byte, chan []byte) {
@@ -45,8 +45,15 @@ func getNilMsg(ch chan []byte) {
 	}
 }
 func checkRspMsg(ch chan []byte, cmd int32) {
+	var m []byte
 	for {
-		m := getMsg(ch) //timeout panic
+		select {
+		case m = <-ch:
+		case <-time.After(time.Second * 5):
+			err := errors.New("get msg timeout")
+			check(err, fmt.Sprintf("check rsp :%v,", pb.RCode[int(cmd)]))
+			return
+		}
 		// parse
 		packet := &pb.Packet{}
 		err := proto.Unmarshal(m, packet)

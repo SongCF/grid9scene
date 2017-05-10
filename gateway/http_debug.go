@@ -35,15 +35,37 @@ func handleStat(w http.ResponseWriter, r *http.Request) {
 
 	res := []byte{}
 	switch queryType {
-	case "app":
-		pool := GetAppPool()
-		s, err := json.MarshalIndent(pool, "", " ")
+	case "session":
+		m := GetAllSession()
+		s, err := json.MarshalIndent(m, "", " ")
 		if err != nil {
 			eStr := fmt.Sprintf("Marshal AppL to json error: %v", err)
 			w.Write([]byte(eStr))
 			return
 		}
 		res = s
+	case "avg_msg":
+		ssNum, pkCount, timeAll := GetAllSessionMsgAvg()
+		avgPk := 0
+		avgTime := 0
+		if ssNum > 0 {
+			avgPk = pkCount / ssNum
+			avgTime = timeAll / ssNum
+		}
+		res = []byte(fmt.Sprintf("session num: %v,\npacket_count: %v,\ntime_all: %v,\navg_pk: %v,\navg_time: %v\n",
+			ssNum, pkCount, timeAll, avgPk, avgTime))
+	case "zk":
+		zkTcp := GetServices("tcp")
+		zkHttp := GetServices("http")
+		tcpStr := ""
+		httpStr := ""
+		for _, t := range zkTcp {
+			tcpStr += string(t) + "\n"
+		}
+		for _, h := range zkHttp {
+			httpStr += string(h) + "\n"
+		}
+		res = []byte(fmt.Sprintf("tcp:\n%s\nhttp:\n%s", tcpStr, httpStr))
 	default:
 		res = []byte("unknown stats type")
 		log.Errorln("query stats error type: ", queryType)

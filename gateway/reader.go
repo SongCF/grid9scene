@@ -28,7 +28,7 @@ func handleClient(conn net.Conn) {
 	s.Conn = conn
 	s.PacketCount = 0
 	s.ConnectTime = time.Now()
-	s.ChanOut = make(chan []byte)
+	s.ChanOut = make(chan []byte, 1024)
 	s.Die = make(chan struct{})
 
 	defer CloseSession(&s)

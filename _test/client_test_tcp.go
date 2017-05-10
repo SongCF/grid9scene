@@ -184,7 +184,7 @@ func tLeave(tcpAddr string, t *testing.T) {
 
 	//未join时leave
 	wCh1 <- leave(T_SPACE_ID) //不应该有msg包返回
-	wCh1 <- leaveOpt()          //不应该有msg包返回
+	wCh1 <- leaveOpt()        //不应该有msg包返回
 
 	//join
 	joinSpace(rCh1, wCh1, rCh2, wCh2, t)
@@ -465,4 +465,3 @@ func joinSpace(rCh1, wCh1, rCh2, wCh2 chan []byte, t *testing.T) {
 	joinNtf := unpack(pb.CmdJoinNtf, c1Rsp).(*pb.JoinNtf)
 	assert(joinNtf.GetUser().GetUserId() == T_USER_ID2, t)
 }
-

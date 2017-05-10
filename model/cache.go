@@ -75,19 +75,19 @@ func GetRoundUidList(appId, spaceId string, gridIdL *[]string, uid int32, conn *
 	}
 	uidUnion := conn.Cmd("SUNION", rg...)
 	if uidUnion.Err != nil {
-		log.Errorf("JoinReq(user[%v:%v]) Cache Cmd(SUNION) error(%v)", appId, uid, uidUnion.Err)
+		log.Errorf("GetRoundUidList(user[%v:%v]) Cache Cmd(SUNION) error(%v)", appId, uid, uidUnion.Err)
 		return nil, pb.ErrServerBusy
 	}
 	unionRespL, err := uidUnion.Array()
 	if err != nil {
-		log.Errorf("JoinReq(user[%v:%v]) get uidUnion array error(%v)", appId, uid, err)
+		log.Errorf("GetRoundUidList(user[%v:%v]) get uidUnion array error(%v)", appId, uid, err)
 		return nil, pb.ErrServerBusy
 	}
 	uidL := []int32{}
 	for _, resp := range unionRespL {
 		tmpUid, err := resp.Int()
 		if err != nil {
-			log.Errorf("JoinReq(user[%v:%v]) parse uid int error(%v)", appId, uid, err)
+			log.Errorf("GetRoundUidList(user[%v:%v]) parse uid int error(%v)", appId, uid, err)
 			return nil, pb.ErrServerBusy
 		}
 		tu := int32(tmpUid)
@@ -102,12 +102,12 @@ func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.Er
 	resp := conn.Cmd("HMGET", fmt.Sprintf(FORMAT_USER, appId, uid),
 		StrSpaceId, StrGridId, StrX, StrY, StrAngle, StrMoveTime, StrExData)
 	if resp.Err != nil {
-		log.Errorf("GetUserData user(%v:%v) data HMGET error: %v", appId, uid, resp.Err)
+		log.Errorf("GetUserInfo user(%v:%v) data HMGET error: %v", appId, uid, resp.Err)
 		return nil, pb.ErrServerBusy
 	}
 	l, err := resp.Array()
 	if err != nil || len(l) != 7 {
-		log.Errorf("GetUserData user(%v:%v) data parse array error: %v", appId, uid, resp.Err)
+		log.Errorf("GetUserInfo user(%v:%v) data parse array error: %v", appId, uid, resp.Err)
 		return nil, pb.ErrServerBusy
 	}
 	if l[0].IsType(redis.Nil) {
@@ -124,7 +124,7 @@ func GetUserInfo(appId string, uid int32, conn *redis.Client) (*UserInfo, *pb.Er
 	moveTime, err5 := l[5].Int()
 	exd, err6 := l[6].Str()
 	if err0 != nil || err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil {
-		log.Errorf("GetUserData(user[%v:%v]) parse userInfo error(%v,%v,%v,%v,%v,%v,%v), resp:%v",
+		log.Errorf("GetUserInfo(user[%v:%v]) parse userInfo error(%v,%v,%v,%v,%v,%v,%v), resp:%v",
 			appId, uid, err0, err1, err2, err3, err4, err5, err6, l)
 		return nil, pb.ErrServerBusy
 	}

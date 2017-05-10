@@ -1,10 +1,10 @@
 package _test
 
 import (
+	"fmt"
+	"runtime"
 	"runtime/debug"
 	"testing"
-	"runtime"
-	"fmt"
 )
 
 func check(err error, dsc string) {
@@ -22,11 +22,11 @@ func assert(b bool, t *testing.T) {
 
 func RecoverPanic() {
 	if x := recover(); x != nil {
-		fmt.Errorf("%v", x)
+		fmt.Printf("Error:%v\n", x)
 		i := 0
 		funcName, file, line, ok := runtime.Caller(i)
 		for ok {
-			fmt.Errorf("frame %v:[func:%v,file:%v,line:%v]\n", i, runtime.FuncForPC(funcName).Name(), file, line)
+			fmt.Printf("frame %v:[func:%v,file:%v,line:%v]\n", i, runtime.FuncForPC(funcName).Name(), file, line)
 			i++
 			funcName, file, line, ok = runtime.Caller(i)
 		}

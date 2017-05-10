@@ -59,7 +59,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		dstGridSet := fmt.Sprintf(FORMAT_GRID, s.AppId, spaceId, dstGridId)
 		err = conn.Cmd("MULTI").Err
 		if err != nil {
-			log.Errorf("JoinReq(user[%v:%v]) Cache Cmd(MULTI) error(%v)", s.AppId, s.Uid, err)
+			log.Errorf("MoveReq(user[%v:%v]) Cache Cmd(MULTI) error(%v)", s.AppId, s.Uid, err)
 			return pb.Error(pb.CmdJoinReq, pb.ErrServerBusy)
 		}
 		//1. from src to dst grid

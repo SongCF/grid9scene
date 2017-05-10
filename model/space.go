@@ -10,7 +10,6 @@ type SpaceInfo struct {
 	GridHeight float32
 }
 
-
 func CreateSpace(appId, spaceId string, gridWidth, gridHeight float32) *pb.ErrInfo {
 	//already exist
 	_, _, e := GetSpaceInfo(appId, spaceId)

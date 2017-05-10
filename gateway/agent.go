@@ -46,6 +46,7 @@ func handleMsg(s *Session, m []byte) (int32, proto.Message) {
 	if err != nil {
 		return pb.Error(0, pb.ErrMsgFormat)
 	}
+	log.Debugf("req msg: %v", pb.RCode[int(packet.GetCmd())])
 	if fn, ok := Handlers[packet.GetCmd()]; ok {
 		return fn(s, packet.GetPayload())
 	} else {
@@ -55,5 +56,5 @@ func handleMsg(s *Session, m []byte) (int32, proto.Message) {
 
 func timeWork() {
 	//TODO something
-	log.Info("on minute timer")
+	//log.Info("on minute timer")
 }
