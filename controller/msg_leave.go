@@ -114,7 +114,7 @@ func CloseSession(s *Session) {
 			// post leave
 			Leave(s, &pb.LeaveReq{})
 			// delete session
-			delete(SessionPool, fmt.Sprintf("%v:%v", s.AppId, s.Uid))
+			DelSession(s.AppId, s.Uid)
 		}
 	}
 }

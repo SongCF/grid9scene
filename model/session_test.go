@@ -14,8 +14,9 @@ func TestSetGetSession(t *testing.T) {
 	if !s.HasLogin() {
 		t.Error("user has login error")
 	}
-	SetSession(app_id, uid, &s)
-	if &s != GetSession(app_id, uid) {
-		t.Error("get session error")
+	//clean
+	s.Clean()
+	if s.AppId != "" || s.Uid != 0 {
+		t.Error("clean session error")
 	}
 }

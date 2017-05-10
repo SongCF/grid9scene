@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	"jhqc.com/songcf/scene/pb"
@@ -21,9 +20,6 @@ type Session struct {
 	ConnectTime time.Time
 }
 
-var (
-	SessionPool = map[string]*Session{} // appId:uid  -> session
-)
 
 func (s *Session) Rsp(cmd int32, payload proto.Message) {
 	if s == nil {
@@ -60,13 +56,8 @@ func (s *Session) HasLogin() bool {
 	return false
 }
 
-func SetSession(appId string, uid int32, s *Session) {
-	SessionPool[fmt.Sprintf("%v:%v", appId, uid)] = s
-}
-
-func GetSession(appId string, uid int32) *Session {
-	if s, ok := SessionPool[fmt.Sprintf("%v:%v", appId, uid)]; ok {
-		return s
-	}
-	return nil
+func (s *Session) Clean() {
+	s.AppId = ""
+	s.Uid = 0
+	s.PacketCount = 0
 }

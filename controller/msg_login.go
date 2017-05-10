@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
 	. "jhqc.com/songcf/scene/model"
@@ -66,9 +65,8 @@ func Logout(s *Session) {
 		// post leave
 		Leave(s, &pb.LeaveReq{})
 		// delete session
-		delete(SessionPool, fmt.Sprintf("%v:%v", s.AppId, s.Uid))
+		DelSession(s.AppId, s.Uid)
 		// clean session
-		s.AppId = ""
-		s.Uid = 0
+		s.Clean()
 	}
 }

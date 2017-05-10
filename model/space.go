@@ -1,18 +1,15 @@
 package model
 
 import (
-	"database/sql"
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"jhqc.com/songcf/scene/pb"
 )
 
-type spaceInfo struct {
+type SpaceInfo struct {
 	GridWidth  float32
 	GridHeight float32
 }
 
-var spaceM = map[string]*spaceInfo{}
 
 func CreateSpace(appId, spaceId string, gridWidth, gridHeight float32) *pb.ErrInfo {
 	//already exist
@@ -54,31 +51,7 @@ func DeleteSpace(appId, spaceId string) *pb.ErrInfo {
 		log.Errorln("delete space failed, db commit failed")
 		return pb.ErrQueryDBError
 	}
+	//clean cache
+	DelSpace(appId, spaceId)
 	return nil
-}
-
-func GetSpaceInfo(appId, spaceId string) (gridWidth, gridHeight float32, e *pb.ErrInfo) {
-	if info, ok := spaceM[fmt.Sprintf("%v:%v", appId, spaceId)]; ok {
-		gridWidth = info.GridWidth
-		gridHeight = info.GridHeight
-		return
-	}
-	// query space info from db
-	raw := DB.QueryRow("SELECT grid_width,grid_height FROM space WHERE app_id=? and space_id=?;", appId, spaceId)
-	err := raw.Scan(&gridWidth, &gridHeight) // if empty, err = sql.ErrNoRows
-	if err == sql.ErrNoRows {
-		log.Infof("Get Space(%v:%v) doesn't exist", appId, spaceId)
-		e = pb.ErrSpaceNotExist
-		return
-	}
-	if err != nil {
-		log.Errorf("select grid w h error(%v:%v) = %v\n", appId, spaceId, err)
-		e = pb.ErrQueryDBError
-		return
-	}
-	spaceM[fmt.Sprintf("%v:%v", appId, spaceId)] = &spaceInfo{
-		GridWidth:  gridWidth,
-		GridHeight: gridHeight,
-	}
-	return
 }

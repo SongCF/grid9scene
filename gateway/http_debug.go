@@ -35,8 +35,9 @@ func handleStat(w http.ResponseWriter, r *http.Request) {
 
 	res := []byte{}
 	switch queryType {
-	case "session":
-		s, err := json.MarshalIndent(SessionPool, "", " ")
+	case "app":
+		pool := GetAppPool()
+		s, err := json.MarshalIndent(pool, "", " ")
 		if err != nil {
 			eStr := fmt.Sprintf("Marshal AppL to json error: %v", err)
 			w.Write([]byte(eStr))

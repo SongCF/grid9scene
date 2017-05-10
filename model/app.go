@@ -46,5 +46,7 @@ func DeleteApp(appId string) *pb.ErrInfo {
 		log.Errorln("delete app failed, db commit failed")
 		return pb.ErrQueryDBError
 	}
+	//clean cache
+	DelApp(appId)
 	return nil
 }
