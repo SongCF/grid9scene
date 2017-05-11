@@ -124,8 +124,8 @@ func clientTimer(uid int32, c *Client, minInterval, maxInterval float32) {
 //======================================================
 
 func randPos() (float32, float32) {
-	x := rand.Float32() * 10000 //[0.0,1.0)
-	y := rand.Float32() * 10000 //[0.0,1.0)
+	x := rand.Float32() * 100 //[0.0,1.0)
+	y := rand.Float32() * 100 //[0.0,1.0)
 	return x, y
 }
 
