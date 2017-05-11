@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"jhqc.com/songcf/scene/_test"
-	"jhqc.com/songcf/scene/util"
 	"net/http"
+	_ "net/http/pprof"
+	"os"
+	"os/signal"
 )
 
 const (
@@ -15,10 +17,17 @@ const (
 )
 
 func main() {
-	go util.HandleSignal()
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt, os.Kill)
+		s := <-c
+		fmt.Println("Got signal:", s)
+		os.Exit(1)
+	}()
 	go func() {
 		fmt.Println(http.ListenAndServe(":9999", nil))
 	}()
 	_test.TCPStressTest(http_server, tcp_server, min_interval, max_interval)
+
 	select {}
 }

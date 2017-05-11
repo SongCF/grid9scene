@@ -43,8 +43,10 @@ func (s *Session) Rsp(cmd int32, payload proto.Message) {
 		log.Infoln("Error: Marshal packet failed!")
 		return
 	}
-	if s != nil && s.ChanOut != nil {
-		log.Debugf("ack msg: %v", pb.RCode[int(cmd)])
+	select {
+	case <-s.Die:
+	default:
+		log.Debugf("(%v) ack msg: %v", s.Uid, pb.RCode[int(cmd)])
 		s.ChanOut <- data
 	}
 }

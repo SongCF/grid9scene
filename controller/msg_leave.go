@@ -77,7 +77,8 @@ func Leave(s *Session, payload *pb.LeaveReq) (int32, proto.Message) {
 				if err != nil {
 					log.Errorln("update last space and pos failed, db commit failed")
 				} else {
-					log.Infof("user(%v) save last space and pos success!", s.Uid)
+					log.Infof("user(%v) save last space(%v) and pos(%v,%v,%v) success!",
+						s.Uid, userInfo.SpaceId, userInfo.PosX, userInfo.PosY, userInfo.Angle)
 				}
 			}
 
@@ -110,7 +111,6 @@ func CloseSession(s *Session) {
 		default:
 			close(s.Die)
 			close(s.ChanOut)
-			s.ChanOut = nil
 			// post leave
 			Leave(s, &pb.LeaveReq{})
 			// delete session

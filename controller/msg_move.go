@@ -65,7 +65,7 @@ func MoveReq(s *Session, m []byte) (int32, proto.Message) {
 		//1. from src to dst grid
 		err := conn.Cmd("SMOVE", srcGridSet, dstGridSet, s.Uid).Err
 		if err != nil {
-			log.Errorf("MoveReq(user[%v:%v]) Cache Cmd error(%v)", s.AppId, s.Uid, err)
+			log.Errorf("MoveReq(user[%v:%v]) Cache Cmd(SMOVE) error(%v)", s.AppId, s.Uid, err)
 			return pb.Error(pb.CmdMoveReq, pb.ErrServerBusy)
 		}
 		//2. set user hash table

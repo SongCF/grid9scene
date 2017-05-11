@@ -3,7 +3,6 @@ package _test
 import (
 	"fmt"
 	"jhqc.com/songcf/scene/pb"
-	"jhqc.com/songcf/scene/util"
 	"math/rand"
 	"net"
 	"os"
@@ -48,9 +47,19 @@ func TCPStressTest(httpServer, tcpServer string, minInterval, maxInterval float3
 
 	//启动客户端
 	for i := 0; i < num; i++ {
-		util.GlobalWG.Add(1)
 		beginClient(int32(idx+i), tcpServer, minInterval, maxInterval)
 	}
+
+	go func() {
+		for {
+			time.Sleep(time.Second * 5)
+			num := 0
+			for range clientList {
+				num++
+			}
+			fmt.Println("current client num: ", num)
+		}
+	}()
 }
 
 func beginClient(uid int32, addr string, minInterval, maxInterval float32) {
@@ -94,16 +103,16 @@ func clientWriter(wCh chan []byte, conn net.Conn) {
 }
 func clientTimer(uid int32, c *Client, minInterval, maxInterval float32) {
 	defer RecoverPanic()
-	defer util.GlobalWG.Done()
 	defer endClient(uid)
 	clientList[uid] = c
 	for {
 		t := minInterval + rand.Float32()*(maxInterval-minInterval)
-		select {
-		case <-time.After(time.Millisecond * time.Duration(int(t*1000))):
-		case <-util.GlobalDie:
-			return
-		}
+		time.Sleep(time.Millisecond * time.Duration(int(t*1000)))
+		//select {
+		//case <-time.After(time.Millisecond * time.Duration(int(t*1000))):
+		//case <-util.GlobalDie:
+		//	return
+		//}
 		ackCmd, data := randMsg()
 		c.W <- data
 		checkRspMsg(c.R, ackCmd)

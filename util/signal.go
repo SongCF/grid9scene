@@ -31,6 +31,8 @@ func HandleSignal() {
 			GlobalWG.Wait()
 			log.Info("shutdown.")
 			os.Exit(0)
+		default:
+			log.Infof("handle unkown signal: %v", msg)
 		}
 	}
 }
