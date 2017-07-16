@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"jhqc.com/songcf/scene/pb"
+	"github.com/SongCF/scene/pb"
 	"net/http"
 	"strings"
 	"testing"

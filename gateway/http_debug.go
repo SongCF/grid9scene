@@ -5,10 +5,14 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
-	. "jhqc.com/songcf/scene/model"
-	. "jhqc.com/songcf/scene/util"
+	. "github.com/SongCF/scene/model"
+	. "github.com/SongCF/scene/util"
 	"net/http"
 	_ "net/http/pprof"
+	"github.com/SongCF/scene/_test"
+	"github.com/SongCF/scene/rpc"
+	"github.com/SongCF/scene/pb"
+	"github.com/golang/protobuf/proto"
 )
 
 func StartPProf() {
@@ -28,6 +32,7 @@ func StartStats() {
 	log.Fatal(http.ListenAndServe(addr, r))
 }
 
+//http://127.0.0.1:9912/stat/session
 func handleStat(w http.ResponseWriter, r *http.Request) {
 	defer RecoverPanic()
 	vars := mux.Vars(r)
@@ -66,6 +71,20 @@ func handleStat(w http.ResponseWriter, r *http.Request) {
 			httpStr += string(h) + "\n"
 		}
 		res = []byte(fmt.Sprintf("tcp:\n%s\nhttp:\n%s", tcpStr, httpStr))
+	case "test":
+		m, err := proto.Marshal(&pb.LeaveAck{})
+		if err != nil {
+			res = []byte("Error: Marshal payload failed!")
+		} else {
+			r := rpc.TestRPC(":9902", _test.T_APP_ID, _test.T_USER_ID, pb.CmdLeaveAck, m)
+			s, err := json.MarshalIndent(r, "", " ")
+			if err != nil {
+				eStr := fmt.Sprintf("Marshal AppL to json error: %v", err)
+				res = []byte(eStr)
+			} else {
+				res = s
+			}
+		}
 	default:
 		res = []byte("unknown stats type")
 		log.Errorln("query stats error type: ", queryType)

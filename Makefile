@@ -37,7 +37,7 @@ s:
 
 # 单元测试
 test:
-	go test jhqc.com/songcf/scene/util jhqc.com/songcf/scene/model
+	go test github.com/SongCF/scene/util github.com/SongCF/scene/model
 	go test
 
 

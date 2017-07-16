@@ -3,9 +3,9 @@ package gateway
 import (
 	"encoding/binary"
 	log "github.com/Sirupsen/logrus"
-	. "jhqc.com/songcf/scene/controller"
-	. "jhqc.com/songcf/scene/model"
-	. "jhqc.com/songcf/scene/util"
+	. "github.com/SongCF/scene/controller"
+	. "github.com/SongCF/scene/model"
+	. "github.com/SongCF/scene/util"
 	"net"
 )
 

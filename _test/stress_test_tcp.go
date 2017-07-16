@@ -2,7 +2,7 @@ package _test
 
 import (
 	"fmt"
-	"jhqc.com/songcf/scene/pb"
+	"github.com/SongCF/scene/pb"
 	"math/rand"
 	"net"
 	"os"

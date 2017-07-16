@@ -1,8 +1,8 @@
 package model
 
 import (
-	"jhqc.com/songcf/scene/pb"
-	. "jhqc.com/songcf/scene/util"
+	"github.com/SongCF/scene/pb"
+	. "github.com/SongCF/scene/util"
 	"testing"
 )
 

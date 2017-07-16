@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"jhqc.com/songcf/scene/_test"
-	"jhqc.com/songcf/scene/util"
+	"github.com/SongCF/scene/_test"
+	"github.com/SongCF/scene/util"
 	"testing"
 	"time"
 )

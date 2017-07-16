@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"jhqc.com/songcf/scene/pb"
+	"github.com/SongCF/scene/pb"
 	"sync"
 	"time"
 )

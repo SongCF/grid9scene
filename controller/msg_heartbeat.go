@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/golang/protobuf/proto"
-	. "jhqc.com/songcf/scene/model"
-	"jhqc.com/songcf/scene/pb"
+	. "github.com/SongCF/scene/model"
+	"github.com/SongCF/scene/pb"
 )
 
 func HeartbeatReq(_ *Session, m []byte) (int32, proto.Message) {

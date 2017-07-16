@@ -4,8 +4,8 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/protobuf/proto"
-	. "jhqc.com/songcf/scene/model"
-	"jhqc.com/songcf/scene/pb"
+	. "github.com/SongCF/scene/model"
+	"github.com/SongCF/scene/pb"
 )
 
 func MoveReq(s *Session, m []byte) (int32, proto.Message) {

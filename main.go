@@ -2,10 +2,11 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	. "jhqc.com/songcf/scene/gateway"
-	. "jhqc.com/songcf/scene/model"
-	. "jhqc.com/songcf/scene/util"
+	. "github.com/SongCF/scene/gateway"
+	. "github.com/SongCF/scene/model"
+	. "github.com/SongCF/scene/util"
 	"os"
+	"github.com/SongCF/scene/rpc"
 )
 
 var server_started = make(chan struct{})
@@ -27,6 +28,11 @@ func main() {
 
 	InitDB()
 	InitCache()
+
+	//init rpc
+	rpcAddr, err := Conf.Get(SCT_TCP, "rpc_server")
+	CheckError(err)
+	go rpc.InitServer(rpcAddr)
 
 	go HttpServer()
 

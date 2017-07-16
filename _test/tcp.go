@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"io"
-	"jhqc.com/songcf/scene/pb"
+	"github.com/SongCF/scene/pb"
 	"net"
 	"strings"
 	"time"

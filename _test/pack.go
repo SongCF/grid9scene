@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
-	"jhqc.com/songcf/scene/pb"
+	"github.com/SongCF/scene/pb"
 	"runtime/debug"
 )
 

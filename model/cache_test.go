@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	. "jhqc.com/songcf/scene/util"
+	. "github.com/SongCF/scene/util"
 	"testing"
 )
 

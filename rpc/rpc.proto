@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package rpc;
+
+
+// The rpc service definition.
+service User {
+  // notice
+  rpc Notice (NoticeRequest) returns (NoticeReply) {}
+}
+
+// The request message
+message NoticeRequest {
+    bytes app_id = 1;
+    int32 user_id = 2;
+    int32 cmd = 3;
+    bytes payload = 4;
+}
+
+// The response message
+message NoticeReply {
+    int32 code = 1;
+}

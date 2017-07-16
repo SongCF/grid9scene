@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/golang/protobuf/proto"
-	. "jhqc.com/songcf/scene/model"
+	. "github.com/SongCF/scene/model"
 )
 
 //define this func by yourself

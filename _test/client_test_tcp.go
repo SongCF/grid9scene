@@ -2,8 +2,8 @@ package _test
 
 import (
 	"fmt"
-	"jhqc.com/songcf/scene/model"
-	"jhqc.com/songcf/scene/pb"
+	"github.com/SongCF/scene/model"
+	"github.com/SongCF/scene/pb"
 	"testing"
 	"time"
 )

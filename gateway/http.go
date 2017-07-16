@@ -5,9 +5,9 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
-	. "jhqc.com/songcf/scene/model"
-	"jhqc.com/songcf/scene/pb"
-	. "jhqc.com/songcf/scene/util"
+	. "github.com/SongCF/scene/model"
+	"github.com/SongCF/scene/pb"
+	. "github.com/SongCF/scene/util"
 	"net/http"
 	"strconv"
 )

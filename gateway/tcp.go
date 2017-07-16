@@ -2,7 +2,7 @@ package gateway
 
 import (
 	log "github.com/Sirupsen/logrus"
-	. "jhqc.com/songcf/scene/util"
+	. "github.com/SongCF/scene/util"
 	"net"
 )
 

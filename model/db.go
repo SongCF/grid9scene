@@ -5,7 +5,7 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
-	. "jhqc.com/songcf/scene/util"
+	. "github.com/SongCF/scene/util"
 	"strings"
 )
 

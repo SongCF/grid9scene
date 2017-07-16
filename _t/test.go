@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"jhqc.com/songcf/scene/_test"
+	"github.com/SongCF/scene/_test"
 	"net/http"
 	_ "net/http/pprof"
 	"os"

@@ -5,8 +5,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/mediocregopher/radix.v2/pool"
 	"github.com/mediocregopher/radix.v2/redis"
-	"jhqc.com/songcf/scene/pb"
-	. "jhqc.com/songcf/scene/util"
+	"github.com/SongCF/scene/pb"
+	. "github.com/SongCF/scene/util"
 	"time"
 )
 

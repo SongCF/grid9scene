@@ -2,7 +2,7 @@ package model
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"jhqc.com/songcf/scene/pb"
+	"github.com/SongCF/scene/pb"
 )
 
 func HasApp(appId string) bool {
